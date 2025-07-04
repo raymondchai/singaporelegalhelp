@@ -1,0 +1,64 @@
+[
+  {
+    "id": "7db6f597-09bc-4db8-849d-7c2e1624652b",
+    "title": "Understanding Divorce Proceedings in Singapore",
+    "content": "Divorce in Singapore is governed by the Women's Charter. This comprehensive guide covers the grounds for divorce, the process of filing, and what to expect during proceedings. Key points include: 1) Irretrievable breakdown must be proven, 2) Minimum 3-year marriage requirement, 3) Mediation is encouraged before court proceedings.",
+    "summary": "Complete guide to divorce proceedings under Singapore law, including requirements, process, and timeline.",
+    "category_id": "8ec7d509-45be-4416-94bc-4e58dd6bc7cc",
+    "content_type": "guide",
+    "difficulty_level": "intermediate",
+    "tags": [
+      "divorce",
+      "family court",
+      "mediation",
+      "women's charter"
+    ],
+    "is_featured": true,
+    "is_published": true,
+    "view_count": 0,
+    "author_id": null,
+    "created_at": "2025-07-04 01:15:20.031955+00",
+    "updated_at": "2025-07-04 01:15:20.031955+00"
+  },
+  {
+    "id": "5e9d8895-4bd5-45f6-9f0c-e1e81bd6da22",
+    "title": "Employment Contract Essentials",
+    "content": "Every employment relationship in Singapore should be governed by a clear contract. This article explains the essential terms that must be included, statutory requirements under the Employment Act, and common clauses that protect both employers and employees.",
+    "summary": "Essential guide to employment contracts in Singapore, covering mandatory terms and best practices.",
+    "category_id": "06bf7a5f-e55e-4deb-b959-4d6c845d00bc",
+    "content_type": "article",
+    "difficulty_level": "beginner",
+    "tags": [
+      "employment contract",
+      "employment act",
+      "workplace rights"
+    ],
+    "is_featured": true,
+    "is_published": true,
+    "view_count": 0,
+    "author_id": null,
+    "created_at": "2025-07-04 01:15:20.031955+00",
+    "updated_at": "2025-07-04 01:15:20.031955+00"
+  },
+  {
+    "id": "a16da991-cc00-4716-abdf-e922f4311985",
+    "title": "Property Purchase Process in Singapore",
+    "content": "Buying property in Singapore involves multiple steps and legal requirements. This guide covers the Option to Purchase, Sales & Purchase Agreement, legal searches, and completion process. Special attention is given to HDB and private property differences.",
+    "summary": "Step-by-step guide to purchasing property in Singapore, covering legal requirements and procedures.",
+    "category_id": "4e8ce92f-a63c-4719-9d73-2f28966c45be",
+    "content_type": "guide",
+    "difficulty_level": "intermediate",
+    "tags": [
+      "property purchase",
+      "option to purchase",
+      "conveyancing",
+      "HDB"
+    ],
+    "is_featured": false,
+    "is_published": true,
+    "view_count": 0,
+    "author_id": null,
+    "created_at": "2025-07-04 01:15:20.031955+00",
+    "updated_at": "2025-07-04 01:15:20.031955+00"
+  }
+]
