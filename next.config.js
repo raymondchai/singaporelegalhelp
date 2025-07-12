@@ -107,59 +107,40 @@ const withPWA = require('next-pwa')({
         }
       },
     },
-    // API routes - NetworkFirst with background sync
-    {
-      urlPattern: /^https?:\/\/[^/]+\/api\/.*/i,
-      handler: 'NetworkFirst',
-      options: {
-        cacheName: 'api-cache',
-        expiration: {
-          maxEntries: 100,
-          maxAgeSeconds: 5 * 60 // 5 minutes
-        },
-        networkTimeoutSeconds: 10,
-        cacheableResponse: {
-          statuses: [0, 200]
-        }
-      }
-    },
   ],
 })
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // ✅ CRITICAL: Enable static export for Amplify
+  output: 'export',
+  trailingSlash: true,
+  distDir: 'out', // Export to 'out' directory
+  
+  // ✅ Image configuration for static export
   images: {
+    unoptimized: true, // Required for static export
     domains: ['localhost', 'ooqhzdavkjlyjxqrhkwt.supabase.co', 'singaporelegalhelp.com.sg'],
     formats: ['image/webp', 'image/avif'],
-    minimumCacheTTL: 60,
     dangerouslyAllowSVG: true,
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
 
   // Production optimizations
-  generateEtags: true,
+  generateEtags: false, // Disabled for static export
   poweredByHeader: false,
   compress: true,
 
-  // Performance optimizations
+  // Performance optimizations (compatible with static export)
   experimental: {
-    webVitalsAttribution: ['CLS', 'LCP', 'FID', 'FCP', 'TTFB'],
     optimizeCss: true,
     scrollRestoration: true,
     optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
-    turbo: {
-      rules: {
-        '*.svg': {
-          loaders: ['@svgr/webpack'],
-          as: '*.js',
-        },
-      },
-    },
   },
 
   // Bundle optimization
   webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
-    // Optimize bundle size
+    // Optimize bundle size for static export
     if (!dev && !isServer) {
       config.optimization.splitChunks = {
         chunks: 'all',
@@ -189,36 +170,40 @@ const nextConfig = {
     return config;
   },
 
-  // Reduce development noise
-  logging: {
-    fetches: {
-      fullUrl: process.env.NODE_ENV === 'development',
-    },
+  // Environment variables for static export
+  env: {
+    NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL || 'https://singaporelegalhelp.com.sg',
+    NEXT_PUBLIC_AMPLIFY_URL: process.env.NEXT_PUBLIC_AMPLIFY_URL,
   },
 
-  // Production-ready headers
-  async headers() {
-    const headers = [
-      {
-        source: '/api/:path*',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'no-store, max-age=0'
-          },
-          {
-            key: 'Pragma',
-            value: 'no-cache'
-          },
-          {
-            key: 'Expires',
-            value: '0'
-          }
-        ],
-      }
-    ];
+  // ✅ Static export configuration
+  exportPathMap: async function (defaultPathMap, { dev, dir, outDir, distDir, buildId }) {
+    // Only run on build, not during development
+    if (dev) {
+      return defaultPathMap
+    }
 
-    // Add production-specific headers
+    // Define your static pages here
+    return {
+      '/': { page: '/' },
+      '/about': { page: '/about' },
+      '/services': { page: '/services' },
+      '/contact': { page: '/contact' },
+      '/pricing': { page: '/pricing' },
+      '/legal-assistant': { page: '/legal-assistant' },
+      '/auth/login': { page: '/auth/login' },
+      '/auth/signup': { page: '/auth/signup' },
+      '/legal-guides': { page: '/legal-guides' },
+      '/dashboard': { page: '/dashboard' },
+      // Add more static routes as needed
+    }
+  },
+
+  // Production-ready headers (for when served)
+  async headers() {
+    const headers = [];
+
+    // Add production-specific headers for static files
     if (process.env.NODE_ENV === 'production') {
       headers.push(
         {
@@ -257,7 +242,7 @@ const nextConfig = {
     return headers;
   },
 
-  // Production redirects
+  // Production redirects (handled at build time)
   async redirects() {
     return [
       {
@@ -267,11 +252,22 @@ const nextConfig = {
       },
       {
         source: '/docs',
-        destination: '/legal',
+        destination: '/legal-guides',
         permanent: true,
       }
     ];
   },
+
+  // ✅ Amplify-specific optimizations
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production' ? { exclude: ['error'] } : false,
+  },
+
+  // Disable features not compatible with static export
+  i18n: undefined, // Disable i18n for static export
+  
+  // Enable source maps for better debugging (optional)
+  productionBrowserSourceMaps: false,
 }
 
 module.exports = withPWA(nextConfig)

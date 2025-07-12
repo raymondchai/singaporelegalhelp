@@ -1,0 +1,15 @@
+{
+  "dev": {
+    "awscloudformation": {
+      "AuthRoleName": "amplify-singaporelegalhelp-dev-f6498-authRole",
+      "UnauthRoleArn": "arn:aws:iam::293875060240:role/amplify-singaporelegalhelp-dev-f6498-unauthRole",
+      "AuthRoleArn": "arn:aws:iam::293875060240:role/amplify-singaporelegalhelp-dev-f6498-authRole",
+      "Region": "ap-southeast-1",
+      "DeploymentBucketName": "amplify-singaporelegalhelp-dev-f6498-deployment",
+      "UnauthRoleName": "amplify-singaporelegalhelp-dev-f6498-unauthRole",
+      "StackName": "amplify-singaporelegalhelp-dev-f6498",
+      "StackId": "arn:aws:cloudformation:ap-southeast-1:293875060240:stack/amplify-singaporelegalhelp-dev-f6498/4614ab70-5f1f-11f0-a6fe-0ae1d9373c9b",
+      "AmplifyAppId": "d2s0gf51rcbiy5"
+    }
+  }
+}
