@@ -112,14 +112,13 @@ const withPWA = require('next-pwa')({
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // ✅ CRITICAL: Enable static export for Amplify
-  output: 'export',
-  trailingSlash: true,
-  distDir: 'out', // Export to 'out' directory
+  // ✅ REMOVED: output: 'export' - This breaks Amplify backend integration
+  // ✅ REMOVED: distDir: 'out' - Let Amplify handle this (.next directory)
+  // ✅ Let Amplify detect this as SSR app automatically
   
-  // ✅ Image configuration for static export
+  // ✅ Image configuration for Amplify SSR
   images: {
-    unoptimized: true, // Required for static export
+    unoptimized: true, // Required for Amplify deployment
     domains: ['localhost', 'ooqhzdavkjlyjxqrhkwt.supabase.co', 'singaporelegalhelp.com.sg'],
     formats: ['image/webp', 'image/avif'],
     dangerouslyAllowSVG: true,
@@ -127,11 +126,11 @@ const nextConfig = {
   },
 
   // Production optimizations
-  generateEtags: false, // Disabled for static export
+  generateEtags: true, // Re-enabled for SSR
   poweredByHeader: false,
   compress: true,
 
-  // Performance optimizations (compatible with static export)
+  // Performance optimizations (compatible with SSR)
   experimental: {
     optimizeCss: true,
     scrollRestoration: true,
@@ -140,7 +139,7 @@ const nextConfig = {
 
   // Bundle optimization
   webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
-    // Optimize bundle size for static export
+    // Optimize bundle size
     if (!dev && !isServer) {
       config.optimization.splitChunks = {
         chunks: 'all',
@@ -170,40 +169,19 @@ const nextConfig = {
     return config;
   },
 
-  // Environment variables for static export
+  // Environment variables for production
   env: {
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL || 'https://singaporelegalhelp.com.sg',
     NEXT_PUBLIC_AMPLIFY_URL: process.env.NEXT_PUBLIC_AMPLIFY_URL,
   },
 
-  // ✅ Static export configuration
-  exportPathMap: async function (defaultPathMap, { dev, dir, outDir, distDir, buildId }) {
-    // Only run on build, not during development
-    if (dev) {
-      return defaultPathMap
-    }
+  // ✅ REMOVED: exportPathMap - This is only for static export, not SSR
 
-    // Define your static pages here
-    return {
-      '/': { page: '/' },
-      '/about': { page: '/about' },
-      '/services': { page: '/services' },
-      '/contact': { page: '/contact' },
-      '/pricing': { page: '/pricing' },
-      '/legal-assistant': { page: '/legal-assistant' },
-      '/auth/login': { page: '/auth/login' },
-      '/auth/signup': { page: '/auth/signup' },
-      '/legal-guides': { page: '/legal-guides' },
-      '/dashboard': { page: '/dashboard' },
-      // Add more static routes as needed
-    }
-  },
-
-  // Production-ready headers (for when served)
+  // Production-ready headers for SSR
   async headers() {
     const headers = [];
 
-    // Add production-specific headers for static files
+    // Add production-specific headers
     if (process.env.NODE_ENV === 'production') {
       headers.push(
         {
@@ -242,7 +220,7 @@ const nextConfig = {
     return headers;
   },
 
-  // Production redirects (handled at build time)
+  // Production redirects
   async redirects() {
     return [
       {
@@ -258,15 +236,14 @@ const nextConfig = {
     ];
   },
 
-  // ✅ Amplify-specific optimizations
+  // Amplify-specific optimizations
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production' ? { exclude: ['error'] } : false,
   },
 
-  // Disable features not compatible with static export
-  i18n: undefined, // Disable i18n for static export
+  // ✅ REMOVED: i18n: undefined - Not needed for SSR
   
-  // Enable source maps for better debugging (optional)
+  // Source maps for debugging
   productionBrowserSourceMaps: false,
 }
 
