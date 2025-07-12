@@ -162,7 +162,7 @@ export function OfflineDocumentViewer() {
                             {doc.type.replace('-', ' ')}
                           </Badge>
                           <span className="text-xs text-gray-500">
-                            {formatFileSize(doc.size)}
+                            {formatFileSize(new Blob([doc.content]).size)}
                           </span>
                         </div>
                         <p className="text-xs text-gray-500 mt-1">

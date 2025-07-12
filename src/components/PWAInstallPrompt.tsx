@@ -74,15 +74,15 @@ export default function PWAInstallPrompt() {
     try {
       await deferredPrompt.prompt()
       const { outcome } = await deferredPrompt.userChoice
-      
+
       if (outcome === 'accepted') {
         setIsInstalled(true)
       }
-      
+
       setShowInstallPrompt(false)
       setDeferredPrompt(null)
     } catch (error) {
-      console.error('Error during PWA installation:', error)
+      // Silent error handling - no console spam
     }
   }
 

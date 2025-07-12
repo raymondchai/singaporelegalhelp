@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -17,20 +17,35 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false)
   const [loading, setLoading] = useState(false)
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { toast } = useToast()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
 
+    console.log('Attempting to sign in with:', email)
+
     try {
-      await signIn(email, password)
+      const result = await signIn(email, password)
+      console.log('Sign in successful:', result)
+
       toast({
         title: 'Success',
         description: 'Successfully signed in!',
       })
-      router.push('/dashboard')
+
+      // Check if user came from homepage or should go to dashboard
+      const redirectTo = searchParams?.get('redirect') || '/dashboard'
+      const fromHomepage = searchParams?.get('from') === 'homepage'
+
+      if (fromHomepage) {
+        router.push('/')
+      } else {
+        router.push(redirectTo)
+      }
     } catch (error: any) {
+      console.error('Sign in error:', error)
       toast({
         title: 'Error',
         description: error.message || 'Failed to sign in',

@@ -173,10 +173,60 @@ export default function ContentManagementPage() {
           <TabsContent value="articles" className="space-y-4">
             <div className="flex justify-between items-center">
               <h2 className="text-xl font-semibold">Legal Articles</h2>
-              <Button className="flex items-center space-x-2">
-                <Plus className="h-4 w-4" />
-                <span>Add Article</span>
-              </Button>
+              <div className="flex items-center space-x-2">
+                <Button
+                  onClick={() => window.open('/admin/content/contract-law', '_blank')}
+                  variant="outline"
+                  className="flex items-center space-x-2"
+                >
+                  <Plus className="h-4 w-4" />
+                  <span>Contract Law Content</span>
+                </Button>
+                <Button
+                  onClick={() => window.open('/admin/content/intellectual-property', '_blank')}
+                  variant="outline"
+                  className="flex items-center space-x-2"
+                >
+                  <Plus className="h-4 w-4" />
+                  <span>IP Law Content</span>
+                </Button>
+                <Button
+                  onClick={() => window.open('/admin/content/personal-injury', '_blank')}
+                  variant="outline"
+                  className="flex items-center space-x-2"
+                >
+                  <Plus className="h-4 w-4" />
+                  <span>Personal Injury Content</span>
+                </Button>
+                <Button
+                  onClick={() => window.open('/admin/content/criminal-law', '_blank')}
+                  variant="outline"
+                  className="flex items-center space-x-2"
+                >
+                  <Plus className="h-4 w-4" />
+                  <span>Criminal Law Content</span>
+                </Button>
+                <Button
+                  onClick={() => window.open('/admin/content/immigration-law', '_blank')}
+                  variant="outline"
+                  className="flex items-center space-x-2"
+                >
+                  <Plus className="h-4 w-4" />
+                  <span>Immigration Law Content</span>
+                </Button>
+                <Button
+                  onClick={() => window.open('/admin/content/debt-bankruptcy', '_blank')}
+                  variant="outline"
+                  className="flex items-center space-x-2"
+                >
+                  <Plus className="h-4 w-4" />
+                  <span>Debt & Bankruptcy Content</span>
+                </Button>
+                <Button className="flex items-center space-x-2">
+                  <Plus className="h-4 w-4" />
+                  <span>Add Article</span>
+                </Button>
+              </div>
             </div>
 
             <div className="grid gap-4">

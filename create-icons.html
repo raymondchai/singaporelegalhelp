@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Icon Generator</title>
+</head>
+<body>
+    <canvas id="canvas" width="144" height="144" style="border: 1px solid black;"></canvas>
+    <br>
+    <button onclick="generateIcon()">Generate Icon</button>
+    <button onclick="downloadIcon()">Download Icon</button>
+    
+    <script>
+        function generateIcon() {
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, 144, 144);
+            
+            // Background
+            ctx.fillStyle = '#2563eb';
+            ctx.fillRect(0, 0, 144, 144);
+            
+            // Scale icon (simplified)
+            ctx.fillStyle = 'white';
+            ctx.font = '48px Arial';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('⚖️', 72, 72);
+            
+            // Singapore flag accent
+            ctx.fillStyle = '#FF0000';
+            ctx.fillRect(10, 10, 20, 10);
+            ctx.fillStyle = 'white';
+            ctx.fillRect(10, 20, 20, 10);
+        }
+        
+        function downloadIcon() {
+            const canvas = document.getElementById('canvas');
+            const link = document.createElement('a');
+            link.download = 'icon-144x144.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+        
+        // Generate icon on load
+        generateIcon();
+    </script>
+</body>
+</html>

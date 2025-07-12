@@ -1,0 +1,20 @@
+EMPLOYMENT CONTRACT
+
+This is a test employment contract document for Singapore Legal Help platform testing.
+
+PARTIES:
+- Employer: Test Company Pte Ltd
+- Employee: Test Employee
+
+TERMS:
+1. Position: Software Developer
+2. Salary: $5,000 per month
+3. Start Date: January 1, 2024
+4. Working Hours: 9 AM to 6 PM, Monday to Friday
+
+BENEFITS:
+- Medical insurance
+- Annual leave: 14 days
+- Sick leave: 14 days
+
+This is a test document for demonstration purposes only.

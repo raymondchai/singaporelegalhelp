@@ -66,17 +66,23 @@ function PWAInstallPromptInner() {
   const handleInstallClick = async () => {
     if (!deferredPrompt) return
 
-    deferredPrompt.prompt()
-    const { outcome } = await deferredPrompt.userChoice
-    
-    if (outcome === 'accepted') {
-      console.log('User accepted the install prompt')
-    } else {
-      console.log('User dismissed the install prompt')
+    try {
+      await deferredPrompt.prompt()
+      const { outcome } = await deferredPrompt.userChoice
+
+      // Silent handling - no console output
+      if (outcome === 'accepted') {
+        // App was installed successfully
+        // The prompt will be hidden automatically
+      }
+
+      setDeferredPrompt(null)
+      setShowInstallPrompt(false)
+    } catch {
+      // Silent error handling - cleanup state
+      setDeferredPrompt(null)
+      setShowInstallPrompt(false)
     }
-    
-    setDeferredPrompt(null)
-    setShowInstallPrompt(false)
   }
 
   const handleDismiss = () => {

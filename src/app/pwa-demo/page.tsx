@@ -45,8 +45,8 @@ All information shared between parties shall remain confidential and protected u
 This agreement shall be governed by the laws of Singapore.
 
 [Additional terms and conditions...]`,
-        type: 'contract',
-        size: 1024,
+        type: 'legal-contract',
+        lastModified: new Date().toISOString(),
       })
       
       toast({

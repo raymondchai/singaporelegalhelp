@@ -1,0 +1,262 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@supabase/supabase-js';
+import jsPDF from 'jspdf';
+
+// Create admin client with service role key for admin operations
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
+
+interface GenerateDocumentRequest {
+  template_id: string;
+  variables: Record<string, any>;
+  output_format: 'docx' | 'pdf';
+  user_id?: string;
+}
+
+// POST - Generate document from template
+export async function POST(request: NextRequest) {
+  try {
+    const body: GenerateDocumentRequest = await request.json();
+    const { template_id, variables, output_format, user_id } = body;
+
+    // Validate required fields
+    if (!template_id || !variables || !output_format) {
+      return NextResponse.json(
+        { error: 'Template ID, variables, and output format are required' },
+        { status: 400 }
+      );
+    }
+
+    // Validate output format
+    if (!['docx', 'pdf'].includes(output_format)) {
+      return NextResponse.json(
+        { error: 'Output format must be either "docx" or "pdf"' },
+        { status: 400 }
+      );
+    }
+
+    // Fetch template from database
+    const { data: template, error: templateError } = await supabaseAdmin
+      .from('legal_document_templates')
+      .select(`
+        id,
+        title,
+        description,
+        category,
+        file_name,
+        file_path,
+        subscription_tier,
+        singapore_compliant,
+        legal_review_required,
+        status
+      `)
+      .eq('id', template_id)
+      .eq('status', 'published')
+      .single();
+
+    if (templateError || !template) {
+      console.error('Template fetch error:', templateError);
+      return NextResponse.json(
+        { error: 'Template not found or not published' },
+        { status: 404 }
+      );
+    }
+
+    // Singapore compliance validation (simplified for foundation phase)
+    console.log('Template variables received:', Object.keys(variables));
+
+    // Template file handling will be implemented in production phase
+    // For foundation phase, we generate documents directly from template metadata
+
+    // Generate document (simplified for foundation phase)
+    let documentBuffer: Buffer;
+    let mimeType: string;
+    let filename: string;
+
+    if (output_format === 'pdf') {
+      // Generate PDF
+      const result = generatePDF(template, variables);
+      documentBuffer = result.buffer;
+      mimeType = 'application/pdf';
+      filename = `${template.title.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`;
+    } else {
+      // Generate simple text document for DOCX (placeholder)
+      const content = generateTextDocument(template, variables);
+      documentBuffer = Buffer.from(content, 'utf-8');
+      mimeType = 'text/plain';
+      filename = `${template.title.replace(/[^a-zA-Z0-9]/g, '_')}.txt`;
+    }
+
+    // Log usage for analytics
+    if (user_id) {
+      await logTemplateUsage(template_id, user_id, 'generate', {
+        output_format,
+        variables_count: Object.keys(variables).length,
+        file_size: documentBuffer.length
+      });
+    }
+
+    // Return the generated document
+    const headers = new Headers();
+    headers.set('Content-Type', mimeType);
+    headers.set('Content-Disposition', `attachment; filename="${filename}"`);
+    headers.set('Content-Length', documentBuffer.length.toString());
+
+    return new NextResponse(documentBuffer, {
+      status: 200,
+      headers
+    });
+
+  } catch (error) {
+    console.error('Document generation API failed:', error);
+    return NextResponse.json(
+      { error: 'Internal server error during document generation' },
+      { status: 500 }
+    );
+  }
+}
+
+// Helper function to generate PDF document
+function generatePDF(template: any, variables: Record<string, any>): { buffer: Buffer } {
+  const doc = new jsPDF();
+
+  // Add title
+  doc.setFontSize(20);
+  doc.text(template.title, 20, 30);
+
+  // Add category and description
+  doc.setFontSize(12);
+  doc.text(`Category: ${template.category}`, 20, 50);
+  doc.text(`Description: ${template.description}`, 20, 70);
+
+  // Add separator
+  doc.text('─'.repeat(50), 20, 90);
+
+  // Add variable data
+  let yPosition = 110;
+  doc.setFontSize(14);
+  doc.text('Document Details:', 20, yPosition);
+  yPosition += 20;
+
+  doc.setFontSize(10);
+  Object.entries(variables).forEach(([key, value]) => {
+    if (value && value.toString().trim()) {
+      const label = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+      doc.text(`${label}: ${value}`, 20, yPosition);
+      yPosition += 10;
+
+      // Add new page if needed
+      if (yPosition > 250) {
+        doc.addPage();
+        yPosition = 30;
+      }
+    }
+  });
+
+  // Add footer
+  if (yPosition > 240) {
+    doc.addPage();
+    yPosition = 30;
+  }
+  doc.setFontSize(8);
+  doc.text('Generated by Singapore Legal Help Platform', 20, yPosition + 20);
+  doc.text('Please consult with a qualified legal professional before use.', 20, yPosition + 30);
+
+  // Convert to buffer
+  const pdfOutput = doc.output('arraybuffer');
+  const buffer = Buffer.from(pdfOutput);
+
+  return { buffer };
+}
+
+// Helper function to generate text document
+function generateTextDocument(template: any, variables: Record<string, any>): string {
+  let content = `${template.title}\n`;
+  content += `${'='.repeat(template.title.length)}\n\n`;
+  content += `Category: ${template.category}\n`;
+  content += `Description: ${template.description}\n\n`;
+  content += `Document Details:\n`;
+  content += `${'-'.repeat(20)}\n`;
+
+  Object.entries(variables).forEach(([key, value]) => {
+    if (value && value.toString().trim()) {
+      const label = key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+      content += `${label}: ${value}\n`;
+    }
+  });
+
+  content += `\n\nGenerated by Singapore Legal Help Platform\n`;
+  content += `Generated on: ${new Date().toLocaleString()}\n`;
+
+  return content;
+}
+
+// Create a simple DOCX template for demonstration
+function createSimpleDocxTemplate(): Buffer {
+  // This is a minimal DOCX structure with placeholders
+  // In production, you would have actual DOCX template files
+  const simpleDocx = `
+    <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+    <w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">
+      <w:body>
+        <w:p>
+          <w:r>
+            <w:t>Legal Document Template</w:t>
+          </w:r>
+        </w:p>
+        <w:p>
+          <w:r>
+            <w:t>Full Name: {{full_name}}</w:t>
+          </w:r>
+        </w:p>
+        <w:p>
+          <w:r>
+            <w:t>NRIC: {{nric_number}}</w:t>
+          </w:r>
+        </w:p>
+        <w:p>
+          <w:r>
+            <w:t>Address: {{address}}</w:t>
+          </w:r>
+        </w:p>
+        <w:p>
+          <w:r>
+            <w:t>Phone: {{phone_number}}</w:t>
+          </w:r>
+        </w:p>
+        <w:p>
+          <w:r>
+            <w:t>Email: {{email_address}}</w:t>
+          </w:r>
+        </w:p>
+      </w:body>
+    </w:document>
+  `;
+  
+  return Buffer.from(simpleDocx, 'utf-8');
+}
+
+// Log template usage for analytics
+async function logTemplateUsage(
+  templateId: string, 
+  userId: string, 
+  action: string, 
+  metadata: Record<string, any>
+) {
+  try {
+    await supabaseAdmin
+      .from('template_usage')
+      .insert({
+        template_id: templateId,
+        user_id: userId,
+        action_type: action,
+        metadata,
+        created_at: new Date().toISOString()
+      });
+  } catch (error) {
+    console.error('Failed to log template usage:', error);
+    // Don't throw error as this is not critical for document generation
+  }
+}

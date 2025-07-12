@@ -50,7 +50,7 @@ export function NotificationManager() {
     if (!courtCase || !courtDate) return
 
     try {
-      await scheduleCourtDateReminder(new Date(courtDate), courtCase)
+      await scheduleCourtDateReminder(new Date(courtDate), courtCase, 'Singapore Courts')
       toast({
         title: 'Court date reminder set',
         description: `Reminder scheduled for ${courtCase}`,
@@ -90,7 +90,7 @@ export function NotificationManager() {
     if (!documentDesc || !documentDate) return
 
     try {
-      await scheduleDocumentReminder(documentDesc, new Date(documentDate))
+      await scheduleDocumentReminder(new Date(documentDate), documentDesc, `doc_${Date.now()}`)
       toast({
         title: 'Document reminder set',
         description: `Reminder scheduled for ${documentDesc}`,

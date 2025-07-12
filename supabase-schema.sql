@@ -166,6 +166,97 @@ CREATE POLICY "Users can insert own messages" ON public.chat_messages
         auth.uid() = (SELECT user_id FROM public.chat_sessions WHERE id = session_id)
     );
 
+-- User documents table for dashboard document management
+CREATE TABLE public.user_documents (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+    title VARCHAR(255) NOT NULL,
+    file_name VARCHAR(255) NOT NULL,
+    file_path TEXT NOT NULL,
+    file_size BIGINT NOT NULL,
+    file_type VARCHAR(50) NOT NULL,
+    practice_area VARCHAR(100),
+    tags TEXT[], -- Array of tags
+    upload_date TIMESTAMPTZ DEFAULT NOW(),
+    last_accessed TIMESTAMPTZ DEFAULT NOW(),
+    is_shared BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- User chat sessions table for dashboard chat history
+CREATE TABLE public.user_chat_sessions (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+    title VARCHAR(255) NOT NULL,
+    practice_area VARCHAR(100),
+    message_count INTEGER DEFAULT 0,
+    first_message TEXT,
+    last_message TEXT,
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- User chat messages table for detailed chat history
+CREATE TABLE public.user_chat_messages (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    session_id UUID REFERENCES public.user_chat_sessions(id) ON DELETE CASCADE,
+    user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+    message TEXT NOT NULL,
+    response TEXT,
+    message_type VARCHAR(20) DEFAULT 'user', -- 'user' or 'assistant'
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- User saved content table for bookmarks and collections
+CREATE TABLE public.user_saved_content (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+    content_type VARCHAR(20) NOT NULL, -- 'article' or 'qa'
+    content_id UUID NOT NULL, -- References legal_articles.id or legal_qa.id
+    collection_name VARCHAR(100) DEFAULT 'Default',
+    notes TEXT,
+    saved_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- User activity logs table for analytics
+CREATE TABLE public.user_activity_logs (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+    activity_type VARCHAR(50) NOT NULL, -- 'search', 'view_article', 'chat', 'upload'
+    practice_area VARCHAR(100),
+    content_id UUID, -- Optional reference to content
+    metadata JSONB, -- Additional activity data
+    created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Enable Row Level Security on new tables
+ALTER TABLE public.user_documents ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.user_chat_sessions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.user_chat_messages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.user_saved_content ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.user_activity_logs ENABLE ROW LEVEL SECURITY;
+
+-- RLS Policies for user_documents
+CREATE POLICY "Users can manage their own documents" ON public.user_documents
+    FOR ALL USING (auth.uid() = user_id);
+
+-- RLS Policies for user_chat_sessions
+CREATE POLICY "Users can view their own chat sessions" ON public.user_chat_sessions
+    FOR ALL USING (auth.uid() = user_id);
+
+-- RLS Policies for user_chat_messages
+CREATE POLICY "Users can view their own chat messages" ON public.user_chat_messages
+    FOR ALL USING (auth.uid() = user_id);
+
+-- RLS Policies for user_saved_content
+CREATE POLICY "Users can manage their saved content" ON public.user_saved_content
+    FOR ALL USING (auth.uid() = user_id);
+
+-- RLS Policies for user_activity_logs
+CREATE POLICY "Users can view their own activity" ON public.user_activity_logs
+    FOR ALL USING (auth.uid() = user_id);
+
 -- Function to handle new user registration
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$

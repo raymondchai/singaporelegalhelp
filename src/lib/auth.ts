@@ -1,6 +1,7 @@
 import { supabase } from './supabase'
 import { Database } from '@/types/database'
 
+// Profile type from database
 export type Profile = Database['public']['Tables']['profiles']['Row']
 
 export async function signUp(email: string, password: string, fullName: string) {

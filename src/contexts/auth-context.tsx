@@ -23,18 +23,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const fetchProfile = async (userId: string) => {
     try {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', userId)
-        .single()
-
-      if (error) {
-        console.error('Error fetching profile:', error)
+      // Get auth token for API call
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.access_token) {
+        console.error('No valid session for profile fetch')
         return null
       }
 
-      return data
+      // Use API route instead of direct database query
+      const response = await fetch('/api/user/profile', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+
+      if (!response.ok) {
+        console.error('Profile API call failed:', response.status, response.statusText)
+        return null
+      }
+
+      const data = await response.json()
+      return data.profile // API returns { profile: {...} }
     } catch (error) {
       console.error('Error fetching profile:', error)
       return null
@@ -51,32 +62,79 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     setMounted(true)
 
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null)
-      if (session?.user) {
-        fetchProfile(session.user.id).then(setProfile)
+    const initializeAuth = async () => {
+      try {
+        // Get initial session with retry logic
+        let session = null
+        let sessionError = null
+
+        for (let attempt = 1; attempt <= 3; attempt++) {
+          const { data: { session: currentSession }, error } = await supabase.auth.getSession()
+
+          if (error) {
+            sessionError = error
+            if (attempt < 3) {
+              await new Promise(resolve => setTimeout(resolve, 1000 * attempt))
+              continue
+            }
+          } else {
+            session = currentSession
+            sessionError = null
+            break
+          }
+        }
+
+        if (sessionError && !session) {
+          console.error('AUTH: Failed to get session:', sessionError.message)
+        }
+
+        setUser(session?.user ?? null)
+
+        if (session?.user) {
+          try {
+            const profileData = await fetchProfile(session.user.id)
+            setProfile(profileData)
+          } catch (profileError) {
+            // Don't fail auth if profile fetch fails
+            console.error('AUTH: Profile fetch failed:', profileError)
+          }
+        }
+
+        setLoading(false)
+
+      } catch (error) {
+        console.error('AUTH: Unexpected error during initialization:', error)
+        setLoading(false)
       }
-      setLoading(false)
-    })
+    }
+
+    // Initialize auth
+    initializeAuth()
 
     // Listen for auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       setUser(session?.user ?? null)
-      
+
       if (session?.user) {
-        const profileData = await fetchProfile(session.user.id)
-        setProfile(profileData)
+        try {
+          const profileData = await fetchProfile(session.user.id)
+          setProfile(profileData)
+        } catch (error) {
+          // Don't fail auth if profile fetch fails
+          console.error('AUTH: Profile fetch failed on state change:', error)
+        }
       } else {
         setProfile(null)
       }
-      
+
       setLoading(false)
     })
 
-    return () => subscription.unsubscribe()
+    return () => {
+      subscription.unsubscribe()
+    }
   }, [])
 
   const signOut = async () => {

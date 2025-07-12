@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useParams, useRouter } from 'next/navigation'
+import Link from 'next/link'
 import { supabase } from '@/lib/supabase'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -22,7 +23,7 @@ import {
   Clock,
   Download
 } from 'lucide-react'
-import Link from 'next/link'
+import Navigation from '@/components/Navigation'
 
 interface LegalCategory {
   id: string
@@ -104,7 +105,7 @@ const findCategoryBySlug = (categories: LegalCategory[], slug: string): LegalCat
 export default function CategoryPage() {
   const params = useParams()
   const router = useRouter()
-  const slug = params.slug as string
+  const slug = params?.slug as string
 
   const [category, setCategory] = useState<LegalCategory | null>(null)
   const [articles, setArticles] = useState<CategoryArticle[]>([])
@@ -113,6 +114,61 @@ export default function CategoryPage() {
   const [loading, setLoading] = useState(true)
   const [searchTerm, setSearchTerm] = useState('')
   const [activeTab, setActiveTab] = useState<'overview' | 'articles' | 'qa'>('overview')
+  const [suggestions, setSuggestions] = useState<any[]>([])
+  const [showSuggestions, setShowSuggestions] = useState(false)
+  const [isLoadingSuggestions, setIsLoadingSuggestions] = useState(false)
+
+  // Handle search form submission
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (searchTerm.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchTerm)}`)
+    }
+  }
+
+  // Handle Enter key in search input
+  const handleSearchKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSearchSubmit(e as any)
+      setShowSuggestions(false)
+    } else if (e.key === 'Escape') {
+      setShowSuggestions(false)
+    }
+  }
+
+  // Handle search input change with suggestions
+  const handleSearchInputChange = async (value: string) => {
+    setSearchTerm(value)
+
+    if (value.length >= 2) {
+      setIsLoadingSuggestions(true)
+      try {
+        const response = await fetch(`/api/search/suggestions?q=${encodeURIComponent(value)}&category=${slug}&limit=5`)
+        const data = await response.json()
+        setSuggestions(data.suggestions || [])
+        setShowSuggestions(true)
+      } catch (error) {
+        console.error('Suggestion fetch failed:', error)
+        setSuggestions([])
+      } finally {
+        setIsLoadingSuggestions(false)
+      }
+    } else {
+      setShowSuggestions(false)
+      setSuggestions([])
+    }
+  }
+
+  // Handle suggestion click
+  const handleSuggestionClick = (suggestion: any) => {
+    if (suggestion.url) {
+      router.push(suggestion.url)
+    } else {
+      setSearchTerm(suggestion.title)
+      router.push(`/search?q=${encodeURIComponent(suggestion.title)}`)
+    }
+    setShowSuggestions(false)
+  }
 
   useEffect(() => {
     fetchCategoryData()
@@ -405,19 +461,8 @@ export default function CategoryPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      {/* Header */}
-      <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <Link href="/" className="flex items-center space-x-2">
-            <Scale className="h-8 w-8 text-blue-600" />
-            <span className="text-2xl font-bold text-gray-900">Singapore Legal Help</span>
-          </Link>
-          <nav className="hidden md:flex space-x-6">
-            <Link href="/demo" className="text-gray-600 hover:text-blue-600">Demo</Link>
-            <Link href="/auth/login" className="text-gray-600 hover:text-blue-600">Sign In</Link>
-          </nav>
-        </div>
-      </header>
+      {/* Navigation */}
+      <Navigation />
 
       {/* Breadcrumb */}
       <div className="bg-white/50 border-b">
@@ -468,15 +513,69 @@ export default function CategoryPage() {
             </div>
 
             {/* Search Bar */}
-            <div className="relative mb-8">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-              <Input
-                type="text"
-                placeholder={`Search within ${category.name}...`}
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 py-3 text-lg"
-              />
+            <div className="flex gap-4 mb-8">
+              <form onSubmit={handleSearchSubmit} className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5 z-10" />
+                <Input
+                  type="text"
+                  placeholder={`Search within ${category.name}...`}
+                  value={searchTerm}
+                  onChange={(e) => handleSearchInputChange(e.target.value)}
+                  onKeyDown={handleSearchKeyDown}
+                  onFocus={() => searchTerm.length >= 2 && suggestions.length > 0 && setShowSuggestions(true)}
+                  onBlur={() => setTimeout(() => setShowSuggestions(false), 200)} // Delay to allow click
+                  className="pl-10 py-3 text-lg"
+                />
+
+                {/* Suggestions Dropdown */}
+                {showSuggestions && (
+                  <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-b-lg shadow-lg z-20 max-h-64 overflow-y-auto">
+                    {isLoadingSuggestions ? (
+                      <div className="p-4 text-center text-gray-500">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-blue-600 mx-auto"></div>
+                        <span className="ml-2 text-sm">Loading suggestions...</span>
+                      </div>
+                    ) : suggestions.length > 0 ? (
+                      suggestions.map((suggestion, index) => (
+                        <button
+                          key={`${suggestion.type}-${suggestion.id}-${index}`}
+                          className="w-full text-left px-4 py-3 hover:bg-gray-100 border-b border-gray-100 last:border-b-0 transition-colors"
+                          onClick={() => handleSuggestionClick(suggestion)}
+                        >
+                          <div className="flex items-start justify-between">
+                            <div className="flex-1">
+                              <div className="font-medium text-sm text-gray-900 mb-1">{suggestion.title}</div>
+                              {suggestion.summary && (
+                                <div className="text-xs text-gray-600 mb-1">{suggestion.summary}</div>
+                              )}
+                              <div className="flex items-center gap-2">
+                                <span className={`text-xs px-2 py-1 rounded-full ${
+                                  suggestion.type === 'Article'
+                                    ? 'bg-blue-100 text-blue-700'
+                                    : 'bg-green-100 text-green-700'
+                                }`}>
+                                  {suggestion.type}
+                                </span>
+                                <span className="text-xs text-gray-500">{suggestion.category}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </button>
+                      ))
+                    ) : searchTerm.length >= 2 && (
+                      <div className="p-4 text-center text-gray-500 text-sm">
+                        No suggestions found for "{searchTerm}"
+                      </div>
+                    )}
+                  </div>
+                )}
+              </form>
+              <Link href={`/search?q=${encodeURIComponent(category.name)}`}>
+                <Button variant="outline" className="py-3 px-6">
+                  <Search className="h-4 w-4 mr-2" />
+                  Advanced Search
+                </Button>
+              </Link>
             </div>
 
             {/* Tab Navigation */}
@@ -571,9 +670,14 @@ export default function CategoryPage() {
                             </div>
                           </CardHeader>
                           <CardContent>
-                            <Button variant="outline" size="sm" className="w-full">
-                              Read Article
-                            </Button>
+                            <Link
+                              href={`/legal-categories/${slug}/articles/${article.id}`}
+                              className="w-full"
+                            >
+                              <Button variant="outline" size="sm" className="w-full">
+                                Read Article
+                              </Button>
+                            </Link>
                           </CardContent>
                         </Card>
                       ))}
@@ -646,7 +750,9 @@ export default function CategoryPage() {
                                   </span>
                                 </div>
                               </div>
-                              <Button variant="outline">Read More</Button>
+                              <Link href={`/legal-categories/${slug}/articles/${article.id}`}>
+                                <Button variant="outline">Read More</Button>
+                              </Link>
                             </div>
                           </CardContent>
                         </Card>
@@ -715,18 +821,24 @@ export default function CategoryPage() {
                     <CardTitle className="text-lg">Quick Actions</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
-                    <Button className="w-full" size="sm">
-                      <MessageSquare className="h-4 w-4 mr-2" />
-                      Ask AI Assistant
-                    </Button>
-                    <Button variant="outline" className="w-full" size="sm">
-                      <FileText className="h-4 w-4 mr-2" />
-                      Upload Document
-                    </Button>
-                    <Button variant="outline" className="w-full" size="sm">
-                      <Users className="h-4 w-4 mr-2" />
-                      Find Lawyer
-                    </Button>
+                    <Link href="/chat" className="w-full">
+                      <Button className="w-full" size="sm">
+                        <MessageSquare className="h-4 w-4 mr-2" />
+                        Ask AI Assistant
+                      </Button>
+                    </Link>
+                    <Link href="/dashboard/documents" className="w-full">
+                      <Button variant="outline" className="w-full" size="sm">
+                        <FileText className="h-4 w-4 mr-2" />
+                        Upload Document
+                      </Button>
+                    </Link>
+                    <Link href="/lawyers" className="w-full">
+                      <Button variant="outline" className="w-full" size="sm">
+                        <Users className="h-4 w-4 mr-2" />
+                        Find Lawyer
+                      </Button>
+                    </Link>
                   </CardContent>
                 </Card>
 

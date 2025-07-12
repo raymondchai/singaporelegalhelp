@@ -14,8 +14,11 @@ export default function DebugPage() {
 
   const testSupabaseConnection = async () => {
     try {
-      console.log('Testing Supabase connection from client...')
-      console.log('Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL)
+      // Only log in development mode
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Testing Supabase connection from client...')
+        console.log('Supabase URL:', process.env.NEXT_PUBLIC_SUPABASE_URL)
+      }
 
       // Fetch all categories
       const { data, error } = await supabase
@@ -24,17 +27,25 @@ export default function DebugPage() {
         .eq('is_active', true)
         .order('sort_order')
 
-      console.log('Categories query result:', { data, error })
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Categories query result:', { data, error })
+      }
 
       if (error) {
         setError(error.message)
-        console.error('Supabase error:', error)
+        if (process.env.NODE_ENV === 'development') {
+          console.error('Supabase error:', error)
+        }
       } else {
         setCategories(data || [])
-        console.log('Categories set:', data?.length || 0)
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Categories set:', data?.length || 0)
+        }
       }
     } catch (err) {
-      console.error('Catch error:', err)
+      if (process.env.NODE_ENV === 'development') {
+        console.error('Catch error:', err)
+      }
       setError(err instanceof Error ? err.message : 'Unknown error')
     } finally {
       setLoading(false)
@@ -68,7 +79,7 @@ export default function DebugPage() {
 
       <div className="grid gap-4">
         {categories.map((category, index) => (
-          <div key={category.id || index} className="p-4 border rounded">
+          <div key={category.id ?? index} className="p-4 border rounded">
             <h3 className="font-semibold">{category.name}</h3>
             <p className="text-sm text-gray-600">{category.description}</p>
             <p className="text-xs text-gray-500">

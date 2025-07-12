@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Scale, Search, FileText, Users, ArrowRight, BookOpen } from 'lucide-react'
 import Link from 'next/link'
+import Navigation from '@/components/Navigation'
 
 interface LegalCategory {
   id: string
@@ -225,19 +226,8 @@ export default function LegalCategoriesPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      {/* Header */}
-      <header className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <Link href="/" className="flex items-center space-x-2">
-            <Scale className="h-8 w-8 text-blue-600" />
-            <span className="text-2xl font-bold text-gray-900">Singapore Legal Help</span>
-          </Link>
-          <nav className="hidden md:flex space-x-6">
-            <Link href="/demo" className="text-gray-600 hover:text-blue-600">Demo</Link>
-            <Link href="/auth/login" className="text-gray-600 hover:text-blue-600">Sign In</Link>
-          </nav>
-        </div>
-      </header>
+      {/* Navigation */}
+      <Navigation />
 
       {/* Hero Section */}
       <section className="py-16">

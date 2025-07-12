@@ -1,0 +1,17 @@
+
+<svg width="72" height="72" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg">
+  <rect width="72" height="72" rx="9" fill="#2563eb"/>
+  <g transform="translate(36, 36)">
+    <g transform="scale(0.36)">
+      <path d="M0 -60 L0 60" stroke="white" stroke-width="4" stroke-linecap="round"/>
+      <path d="M-60 -30 L60 -30" stroke="white" stroke-width="4" stroke-linecap="round"/>
+      <circle cx="-60" cy="-10" r="20" fill="white"/>
+      <circle cx="60" cy="-10" r="20" fill="white"/>
+      <path d="M-60 -30 L-60 -20" stroke="white" stroke-width="3"/>
+      <path d="M60 -30 L60 -20" stroke="white" stroke-width="3"/>
+      <path d="M-30 60 L30 60" stroke="white" stroke-width="6" stroke-linecap="round"/>
+    </g>
+  </g>
+  <rect x="57.6" y="3.6" width="10.799999999999999" height="3.6" fill="#FF0000"/>
+  <rect x="57.6" y="7.2" width="10.799999999999999" height="3.6" fill="white"/>
+</svg>
