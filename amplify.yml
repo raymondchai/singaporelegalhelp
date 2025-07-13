@@ -3,44 +3,26 @@ frontend:
   phases:
     preBuild:
       commands:
-        # Environment validation
         - echo "=== ENVIRONMENT VALIDATION ==="
         - echo "Node version:" && node --version
         - echo "NPM version:" && npm --version
         - echo "Checking required environment variables..."
-        - |
-          if [ -z "$NEXT_PUBLIC_SUPABASE_URL" ]; then
-            echo "ERROR: NEXT_PUBLIC_SUPABASE_URL is not set!"
-            exit 1
-          else
-            echo "✅ NEXT_PUBLIC_SUPABASE_URL is set"
-          fi
-        - |
-          if [ -z "$NEXT_PUBLIC_SUPABASE_ANON_KEY" ]; then
-            echo "ERROR: NEXT_PUBLIC_SUPABASE_ANON_KEY is not set!"
-            exit 1
-          else
-            echo "✅ NEXT_PUBLIC_SUPABASE_ANON_KEY is set"
-          fi
-        # Verify project structure
+        - 'test -n "$NEXT_PUBLIC_SUPABASE_URL" && echo "✅ NEXT_PUBLIC_SUPABASE_URL is set" || (echo "❌ NEXT_PUBLIC_SUPABASE_URL is missing" && exit 1)'
+        - 'test -n "$NEXT_PUBLIC_SUPABASE_ANON_KEY" && echo "✅ NEXT_PUBLIC_SUPABASE_ANON_KEY is set" || (echo "❌ NEXT_PUBLIC_SUPABASE_ANON_KEY is missing" && exit 1)'
         - echo "=== PROJECT STRUCTURE ==="
         - ls -la next.config.js || echo "Warning: next.config.js not found"
-        - cat package.json | grep -A 5 -B 5 '"build"'
-        # Install dependencies
+        - 'cat package.json | grep -A 3 -B 3 "build"'
         - echo "=== INSTALLING DEPENDENCIES ==="
-        - npm ci --verbose
+        - npm ci
         - echo "Dependencies installed successfully"
     build:
       commands:
-        # Build the Next.js application
         - echo "=== BUILDING APPLICATION ==="
         - npm run build
-        # Verify build output
         - echo "=== BUILD VERIFICATION ==="
         - ls -la .next/
         - ls -la .next/server/ || echo "No server directory found"
         - ls -la .next/static/ || echo "No static directory found"
-        # Test if critical files exist
         - test -f .next/BUILD_ID && echo "✅ BUILD_ID exists" || echo "❌ BUILD_ID missing"
         - test -d .next/server/app && echo "✅ Server app directory exists" || echo "❌ Server app directory missing"
         - echo "Build completed successfully"
