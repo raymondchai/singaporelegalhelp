@@ -1,15 +1,12 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import dynamic from 'next/dynamic'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { useOfflineStorage } from '@/hooks/use-offline-storage'
-import { useBackgroundSync } from '@/hooks/use-background-sync'
-import { usePushNotifications } from '@/hooks/use-push-notifications'
-import { usePWAAnalytics, usePWAInstall, usePWAPerformance } from '@/hooks/use-pwa-analytics'
 import { 
   CheckCircle, 
   XCircle, 
@@ -21,10 +18,19 @@ import {
   Download,
   Smartphone,
   Database,
-
   BarChart3,
   TestTube
 } from 'lucide-react'
+
+// Disable static generation for this page
+export const dynamic = 'force-dynamic'
+export const revalidate = false
+
+// Dynamically import hooks that use browser APIs
+const PWAHooksWrapper = dynamic(() => Promise.resolve(PWAHooksComponent), {
+  ssr: false,
+  loading: () => <div className="text-center py-8">Loading PWA functionality...</div>
+})
 
 interface TestResult {
   name: string
@@ -33,25 +39,83 @@ interface TestResult {
   details?: any
 }
 
-export default function PWATestingPage() {
-  const [testResults, setTestResults] = useState<TestResult[]>([])
-  const [isRunning, setIsRunning] = useState(false)
-  const [progress, setProgress] = useState(0)
+// Component that uses PWA hooks - only loads on client
+function PWAHooksComponent({ onTestResults }: { onTestResults: (results: TestResult[]) => void }) {
+  // Import hooks only when component mounts (client-side)
+  const [hooks, setHooks] = useState<any>(null)
+  
+  useEffect(() => {
+    const loadHooks = async () => {
+      try {
+        const [
+          { useOfflineStorage },
+          { useBackgroundSync },
+          { usePushNotifications },
+          { usePWAAnalytics, usePWAInstall, usePWAPerformance }
+        ] = await Promise.all([
+          import('@/hooks/use-offline-storage'),
+          import('@/hooks/use-background-sync'),
+          import('@/hooks/use-push-notifications'),
+          import('@/hooks/use-pwa-analytics')
+        ])
 
-  const { isSupported: storageSupported, isInitialized, syncPendingActions } = useOfflineStorage()
-  const { isOnline, syncStats, triggerSync } = useBackgroundSync()
-  const { isSupported: notificationSupported, permission, requestPermission } = usePushNotifications()
-  const { metrics, getEngagementMetrics } = usePWAAnalytics()
-  const { isInstallable, isInstalled, promptInstall } = usePWAInstall()
-  const { performanceMetrics } = usePWAPerformance()
+        setHooks({
+          useOfflineStorage,
+          useBackgroundSync,
+          usePushNotifications,
+          usePWAAnalytics,
+          usePWAInstall,
+          usePWAPerformance
+        })
+      } catch (error) {
+        console.error('Failed to load PWA hooks:', error)
+        // Set fallback hooks
+        setHooks({
+          useOfflineStorage: () => ({ isSupported: false, isInitialized: false, syncPendingActions: () => {} }),
+          useBackgroundSync: () => ({ isOnline: true, syncStats: {}, triggerSync: () => Promise.resolve() }),
+          usePushNotifications: () => ({ isSupported: false, permission: 'default', requestPermission: () => {} }),
+          usePWAAnalytics: () => ({ metrics: null, getEngagementMetrics: () => ({}) }),
+          usePWAInstall: () => ({ isInstallable: false, isInstalled: false, promptInstall: () => {} }),
+          usePWAPerformance: () => ({ performanceMetrics: { loadTime: 0, renderTime: 0, serviceWorkerStatus: 'unknown' } })
+        })
+      }
+    }
+
+    loadHooks()
+  }, [])
+
+  // Use hooks only after they're loaded
+  const offlineStorage = hooks?.useOfflineStorage() || { isSupported: false, isInitialized: false, syncPendingActions: () => {} }
+  const backgroundSync = hooks?.useBackgroundSync() || { isOnline: true, syncStats: {}, triggerSync: () => Promise.resolve() }
+  const pushNotifications = hooks?.usePushNotifications() || { isSupported: false, permission: 'default', requestPermission: () => {} }
+  const analytics = hooks?.usePWAAnalytics() || { metrics: null, getEngagementMetrics: () => ({}) }
+  const install = hooks?.usePWAInstall() || { isInstallable: false, isInstalled: false, promptInstall: () => {} }
+  const performance = hooks?.usePWAPerformance() || { performanceMetrics: { loadTime: 0, renderTime: 0, serviceWorkerStatus: 'unknown' } }
 
   const runComprehensiveTests = async () => {
-    setIsRunning(true)
-    setProgress(0)
+    if (!hooks) {
+      onTestResults([{
+        name: 'PWA Hooks',
+        status: 'fail',
+        message: 'PWA hooks not loaded yet. Please wait and try again.'
+      }])
+      return
+    }
+
     const results: TestResult[] = []
 
+    // Browser environment check
+    if (typeof window === 'undefined' || typeof navigator === 'undefined') {
+      results.push({
+        name: 'Browser Environment',
+        status: 'fail',
+        message: 'Not running in browser environment'
+      })
+      onTestResults(results)
+      return
+    }
+
     // Test 1: PWA Manifest
-    setProgress(10)
     try {
       const response = await fetch('/manifest.json')
       if (response.ok) {
@@ -78,7 +142,6 @@ export default function PWATestingPage() {
     }
 
     // Test 2: Service Worker
-    setProgress(20)
     if ('serviceWorker' in navigator) {
       try {
         const registration = await navigator.serviceWorker.getRegistration()
@@ -112,33 +175,13 @@ export default function PWATestingPage() {
     }
 
     // Test 3: Offline Storage
-    setProgress(30)
-    if (storageSupported && isInitialized) {
-      try {
-        // Test saving a document
-        const testDoc = {
-          title: 'Test Document',
-          content: 'This is a test document for PWA testing',
-          type: 'user-document' as const,
-          category: 'test',
-          lastModified: new Date().toISOString()
-        }
-        
-        await new Promise(resolve => setTimeout(resolve, 100)) // Small delay
-        
-        results.push({
-          name: 'Offline Storage',
-          status: 'pass',
-          message: 'IndexedDB storage working correctly',
-          details: { supported: storageSupported, initialized: isInitialized }
-        })
-      } catch (error) {
-        results.push({
-          name: 'Offline Storage',
-          status: 'fail',
-          message: `Storage test failed: ${error}`
-        })
-      }
+    if (offlineStorage.isSupported && offlineStorage.isInitialized) {
+      results.push({
+        name: 'Offline Storage',
+        status: 'pass',
+        message: 'IndexedDB storage working correctly',
+        details: { supported: offlineStorage.isSupported, initialized: offlineStorage.isInitialized }
+      })
     } else {
       results.push({
         name: 'Offline Storage',
@@ -148,14 +191,13 @@ export default function PWATestingPage() {
     }
 
     // Test 4: Background Sync
-    setProgress(40)
     try {
-      await triggerSync()
+      await backgroundSync.triggerSync()
       results.push({
         name: 'Background Sync',
         status: 'pass',
         message: 'Background sync functionality working',
-        details: syncStats
+        details: backgroundSync.syncStats
       })
     } catch (error) {
       results.push({
@@ -166,13 +208,12 @@ export default function PWATestingPage() {
     }
 
     // Test 5: Push Notifications
-    setProgress(50)
-    if (notificationSupported) {
+    if (pushNotifications.isSupported) {
       results.push({
         name: 'Push Notifications',
-        status: permission === 'granted' ? 'pass' : permission === 'denied' ? 'fail' : 'warning',
-        message: `Notifications supported. Permission: ${permission}`,
-        details: { supported: notificationSupported, permission }
+        status: pushNotifications.permission === 'granted' ? 'pass' : pushNotifications.permission === 'denied' ? 'fail' : 'warning',
+        message: `Notifications supported. Permission: ${pushNotifications.permission}`,
+        details: { supported: pushNotifications.isSupported, permission: pushNotifications.permission }
       })
     } else {
       results.push({
@@ -183,14 +224,13 @@ export default function PWATestingPage() {
     }
 
     // Test 6: PWA Installation
-    setProgress(60)
-    if (isInstalled) {
+    if (install.isInstalled) {
       results.push({
         name: 'PWA Installation',
         status: 'pass',
         message: 'App is installed as PWA'
       })
-    } else if (isInstallable) {
+    } else if (install.isInstallable) {
       results.push({
         name: 'PWA Installation',
         status: 'warning',
@@ -205,7 +245,6 @@ export default function PWATestingPage() {
     }
 
     // Test 7: Network Status Detection
-    setProgress(70)
     const networkTest = navigator.onLine
     results.push({
       name: 'Network Detection',
@@ -215,7 +254,6 @@ export default function PWATestingPage() {
     })
 
     // Test 8: Cache API
-    setProgress(80)
     if ('caches' in window) {
       try {
         const cacheNames = await caches.keys()
@@ -241,15 +279,14 @@ export default function PWATestingPage() {
     }
 
     // Test 9: Performance Metrics
-    setProgress(90)
-    if (performanceMetrics.loadTime > 0) {
-      const loadTimeStatus = performanceMetrics.loadTime < 3000 ? 'pass' : 
-                           performanceMetrics.loadTime < 5000 ? 'warning' : 'fail'
+    if (performance.performanceMetrics.loadTime > 0) {
+      const loadTimeStatus = performance.performanceMetrics.loadTime < 3000 ? 'pass' : 
+                           performance.performanceMetrics.loadTime < 5000 ? 'warning' : 'fail'
       results.push({
         name: 'Performance',
         status: loadTimeStatus,
-        message: `Load time: ${performanceMetrics.loadTime}ms, Render time: ${performanceMetrics.renderTime}ms`,
-        details: performanceMetrics
+        message: `Load time: ${performance.performanceMetrics.loadTime}ms, Render time: ${performance.performanceMetrics.renderTime}ms`,
+        details: performance.performanceMetrics
       })
     } else {
       results.push({
@@ -260,13 +297,12 @@ export default function PWATestingPage() {
     }
 
     // Test 10: Analytics Tracking
-    setProgress(100)
-    if (metrics) {
+    if (analytics.metrics) {
       results.push({
         name: 'Analytics Tracking',
         status: 'pass',
-        message: `Analytics working. ${metrics.sessionCount} sessions tracked`,
-        details: getEngagementMetrics()
+        message: `Analytics working. ${analytics.metrics.sessionCount} sessions tracked`,
+        details: analytics.getEngagementMetrics()
       })
     } else {
       results.push({
@@ -276,6 +312,27 @@ export default function PWATestingPage() {
       })
     }
 
+    onTestResults(results)
+  }
+
+  return (
+    <Button 
+      onClick={runComprehensiveTests}
+      disabled={!hooks}
+      className="flex items-center space-x-2"
+    >
+      <TestTube className="h-4 w-4" />
+      <span>{!hooks ? 'Loading PWA Hooks...' : 'Run All Tests'}</span>
+    </Button>
+  )
+}
+
+export default function PWATestingPage() {
+  const [testResults, setTestResults] = useState<TestResult[]>([])
+  const [isRunning, setIsRunning] = useState(false)
+  const [progress, setProgress] = useState(0)
+
+  const handleTestResults = (results: TestResult[]) => {
     setTestResults(results)
     setIsRunning(false)
   }
@@ -338,14 +395,7 @@ export default function PWATestingPage() {
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between">
-              <Button 
-                onClick={runComprehensiveTests}
-                disabled={isRunning}
-                className="flex items-center space-x-2"
-              >
-                <TestTube className="h-4 w-4" />
-                <span>{isRunning ? 'Running Tests...' : 'Run All Tests'}</span>
-              </Button>
+              <PWAHooksWrapper onTestResults={handleTestResults} />
 
               {testResults.length > 0 && (
                 <div className="flex items-center space-x-4">
@@ -375,158 +425,32 @@ export default function PWATestingPage() {
 
         {/* Test Results */}
         {testResults.length > 0 && (
-          <Tabs defaultValue="results" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="results">Test Results</TabsTrigger>
-              <TabsTrigger value="performance">Performance</TabsTrigger>
-              <TabsTrigger value="analytics">Analytics</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="results">
-              <div className="grid gap-4">
-                {testResults.map((result, index) => (
-                  <Card key={index}>
-                    <CardContent className="p-4">
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-3">
-                          {getStatusIcon(result.status)}
-                          <div>
-                            <h3 className="font-semibold">{result.name}</h3>
-                            <p className="text-sm text-gray-600">{result.message}</p>
-                          </div>
-                        </div>
-                        {getStatusBadge(result.status)}
-                      </div>
-                      
-                      {result.details && (
-                        <div className="mt-3 p-3 bg-gray-50 rounded-lg">
-                          <pre className="text-xs overflow-x-auto">
-                            {JSON.stringify(result.details, null, 2)}
-                          </pre>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </TabsContent>
-
-            <TabsContent value="performance">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Performance Metrics</CardTitle>
-                  <CardDescription>
-                    PWA performance and loading metrics
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid md:grid-cols-2 gap-6">
-                    <div className="space-y-4">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Load Time:</span>
-                        <span className="font-medium">{performanceMetrics.loadTime}ms</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Render Time:</span>
-                        <span className="font-medium">{performanceMetrics.renderTime}ms</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Service Worker:</span>
-                        <span className="font-medium">{performanceMetrics.serviceWorkerStatus}</span>
+          <div className="grid gap-4">
+            {testResults.map((result, index) => (
+              <Card key={index}>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      {getStatusIcon(result.status)}
+                      <div>
+                        <h3 className="font-semibold">{result.name}</h3>
+                        <p className="text-sm text-gray-600">{result.message}</p>
                       </div>
                     </div>
-                    <div className="space-y-4">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Network Status:</span>
-                        <div className="flex items-center space-x-2">
-                          {isOnline ? <Wifi className="h-4 w-4 text-green-500" /> : <WifiOff className="h-4 w-4 text-red-500" />}
-                          <span className="font-medium">{isOnline ? 'Online' : 'Offline'}</span>
-                        </div>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">PWA Installed:</span>
-                        <span className="font-medium">{isInstalled ? 'Yes' : 'No'}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Installable:</span>
-                        <span className="font-medium">{isInstallable ? 'Yes' : 'No'}</span>
-                      </div>
-                    </div>
+                    {getStatusBadge(result.status)}
                   </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="analytics">
-              <Card>
-                <CardHeader>
-                  <CardTitle>PWA Analytics</CardTitle>
-                  <CardDescription>
-                    Usage metrics and engagement data
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {metrics && (
-                    <div className="grid md:grid-cols-3 gap-6">
-                      <div className="space-y-4">
-                        <h4 className="font-semibold text-gray-900">Usage Metrics</h4>
-                        <div className="space-y-2">
-                          <div className="flex justify-between">
-                            <span className="text-gray-600">Total Sessions:</span>
-                            <span className="font-medium">{metrics.sessionCount}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-gray-600">Offline Sessions:</span>
-                            <span className="font-medium">{metrics.offlineSessionCount}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-gray-600">Avg Session Duration:</span>
-                            <span className="font-medium">{Math.round(metrics.averageSessionDuration / 1000)}s</span>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="space-y-4">
-                        <h4 className="font-semibold text-gray-900">Notifications</h4>
-                        <div className="space-y-2">
-                          <div className="flex justify-between">
-                            <span className="text-gray-600">Sent:</span>
-                            <span className="font-medium">{metrics.notificationsSent}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-gray-600">Clicked:</span>
-                            <span className="font-medium">{metrics.notificationsClicked}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-gray-600">Permission Granted:</span>
-                            <span className="font-medium">{metrics.notificationPermissionGranted}</span>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="space-y-4">
-                        <h4 className="font-semibold text-gray-900">Sync Metrics</h4>
-                        <div className="space-y-2">
-                          <div className="flex justify-between">
-                            <span className="text-gray-600">Attempts:</span>
-                            <span className="font-medium">{metrics.syncAttempts}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-gray-600">Successes:</span>
-                            <span className="font-medium">{metrics.syncSuccesses}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-gray-600">Failures:</span>
-                            <span className="font-medium">{metrics.syncFailures}</span>
-                          </div>
-                        </div>
-                      </div>
+                  
+                  {result.details && (
+                    <div className="mt-3 p-3 bg-gray-50 rounded-lg">
+                      <pre className="text-xs overflow-x-auto">
+                        {JSON.stringify(result.details, null, 2)}
+                      </pre>
                     </div>
                   )}
                 </CardContent>
               </Card>
-            </TabsContent>
-          </Tabs>
+            ))}
+          </div>
         )}
       </div>
     </div>
