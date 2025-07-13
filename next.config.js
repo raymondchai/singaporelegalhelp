@@ -41,8 +41,14 @@ const nextConfig = {
     },
   }),
 
-  // Webpack configuration for better builds
+  // Webpack configuration for better builds and path resolution
   webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
+    // Ensure proper path resolution for TypeScript aliases
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@': require('path').resolve(__dirname, 'src'),
+    };
+
     // Handle SVG imports
     config.module.rules.push({
       test: /\.svg$/i,
