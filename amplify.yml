@@ -1,0 +1,54 @@
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        # Environment validation
+        - echo "=== ENVIRONMENT VALIDATION ==="
+        - echo "Node version:" && node --version
+        - echo "NPM version:" && npm --version
+        - echo "Checking required environment variables..."
+        - |
+          if [ -z "$NEXT_PUBLIC_SUPABASE_URL" ]; then
+            echo "ERROR: NEXT_PUBLIC_SUPABASE_URL is not set!"
+            exit 1
+          else
+            echo "✅ NEXT_PUBLIC_SUPABASE_URL is set"
+          fi
+        - |
+          if [ -z "$NEXT_PUBLIC_SUPABASE_ANON_KEY" ]; then
+            echo "ERROR: NEXT_PUBLIC_SUPABASE_ANON_KEY is not set!"
+            exit 1
+          else
+            echo "✅ NEXT_PUBLIC_SUPABASE_ANON_KEY is set"
+          fi
+        # Verify project structure
+        - echo "=== PROJECT STRUCTURE ==="
+        - ls -la next.config.js || echo "Warning: next.config.js not found"
+        - cat package.json | grep -A 5 -B 5 '"build"'
+        # Install dependencies
+        - echo "=== INSTALLING DEPENDENCIES ==="
+        - npm ci --verbose
+        - echo "Dependencies installed successfully"
+    build:
+      commands:
+        # Build the Next.js application
+        - echo "=== BUILDING APPLICATION ==="
+        - npm run build
+        # Verify build output
+        - echo "=== BUILD VERIFICATION ==="
+        - ls -la .next/
+        - ls -la .next/server/ || echo "No server directory found"
+        - ls -la .next/static/ || echo "No static directory found"
+        # Test if critical files exist
+        - test -f .next/BUILD_ID && echo "✅ BUILD_ID exists" || echo "❌ BUILD_ID missing"
+        - test -d .next/server/app && echo "✅ Server app directory exists" || echo "❌ Server app directory missing"
+        - echo "Build completed successfully"
+  artifacts:
+    baseDirectory: .next
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - node_modules/**/*
+      - .next/cache/**/*
