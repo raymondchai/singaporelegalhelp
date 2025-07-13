@@ -1,22 +1,16 @@
-version: 1
+version: 0.1
 frontend:
   phases:
     preBuild:
       commands:
-        - echo "Starting preBuild phase"
-        - node --version
-        - npm --version
         - npm ci
     build:
       commands:
-        - echo "Starting build phase"
         - npm run build
-        - echo "Build completed"
   artifacts:
     baseDirectory: .next
     files:
-      - '**/*'
+      - "**/*"
   cache:
     paths:
       - node_modules/**/*
-      - .next/cache/**/*
