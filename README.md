@@ -168,6 +168,32 @@ AIXPLAIN_TEAM_ID=your_aixplain_team_id
 
 ---
 
+## 🌐 **AWS Amplify Deployment**
+
+### **Current Status**
+- ✅ **Live on AWS Amplify**: [https://main.d2s0gf51rcbiy5.amplifyapp.com/](https://main.d2s0gf51rcbiy5.amplifyapp.com/)
+- ✅ **Build Configuration**: Optimized for AWS Amplify hosting
+- ✅ **Singapore Region**: Deployed in ap-southeast-1 for optimal performance
+- 🎯 **Custom Domain**: Setup guide available in `AWS_AMPLIFY_DOMAIN_SETUP.md`
+
+### **AWS Deployment Features**
+- **Auto-scaling**: Handles traffic spikes automatically
+- **Global CDN**: AWS CloudFront for fast content delivery
+- **SSL/TLS**: Automatic HTTPS with AWS Certificate Manager
+- **CI/CD**: Automatic deployments from GitHub commits
+- **Monitoring**: AWS CloudWatch integration for performance tracking
+
+### **Verification Commands**
+```powershell
+# Windows PowerShell
+.\scripts\verify-aws-deployment.ps1
+
+# Or test manually
+curl https://main.d2s0gf51rcbiy5.amplifyapp.com/api/health
+```
+
+---
+
 ## 📊 **Project Status**
 
 ### **Development Phases**
@@ -211,9 +237,11 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🔗 **Links**
 
-- **Live Demo**: [Coming Soon]
+- **Live Demo**: [https://main.d2s0gf51rcbiy5.amplifyapp.com/](https://main.d2s0gf51rcbiy5.amplifyapp.com/) (AWS Amplify)
+- **Target Domain**: [https://www.singaporelegalhelp.com.sg](https://www.singaporelegalhelp.com.sg) (Setup in progress)
 - **Documentation**: See `/docs` folder
 - **Database Schema**: `FINAL_DATABASE_SCHEMA.md`
+- **AWS Deployment Guide**: `AWS_AMPLIFY_DOMAIN_SETUP.md`
 - **Deployment Guide**: `DEPLOYMENT.md`
 
 ---

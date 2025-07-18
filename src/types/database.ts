@@ -9,6 +9,29 @@ export type Json =
 export interface Database {
   public: {
     Tables: {
+      admin_roles: {
+        Row: {
+          id: string
+          user_id: string
+          role: string
+          permissions: Record<string, any>
+          is_active: boolean
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          user_id: string
+          role?: string
+          permissions?: Record<string, any>
+          is_active?: boolean
+        }
+        Update: {
+          role?: string
+          permissions?: Record<string, any>
+          is_active?: boolean
+          updated_at?: string
+        }
+      }
       profiles: {
         Row: {
           id: string
@@ -638,3 +661,7 @@ export interface Database {
     }
   }
 }
+
+// Export commonly used types
+export type AdminRole = Database['public']['Tables']['admin_roles']['Row']
+export type Profile = Database['public']['Tables']['profiles']['Row']

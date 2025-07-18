@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Supabase Realtime Debug</title>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h1>Supabase Realtime Debug</h1>
+    <div id="status">Initializing...</div>
+    <div id="logs"></div>
+    
+    <script>
+        const supabaseUrl = 'https://ooqhzdavkjlyjxqrhkwt.supabase.co'
+        const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9vcWh6ZGF2a2pseWp4cXJoa3d0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTE0NjEyMzMsImV4cCI6MjA2NzAzNzIzM30.48-ToVzjk8oKwfa80BAyxmENr9-DU7G-i2U9JBQgEBY'
+        
+        const statusDiv = document.getElementById('status')
+        const logsDiv = document.getElementById('logs')
+        
+        function log(message) {
+            console.log(message)
+            logsDiv.innerHTML += `<div>${new Date().toISOString()}: ${message}</div>`
+        }
+        
+        function updateStatus(status) {
+            statusDiv.textContent = status
+            log(`Status: ${status}`)
+        }
+        
+        async function testRealtime() {
+            try {
+                updateStatus('Creating Supabase client...')
+
+                // First test direct WebSocket connection
+                log('🔍 Testing direct WebSocket connection...')
+                const wsUrl = 'wss://ooqhzdavkjlyjxqrhkwt.supabase.co/realtime/v1/websocket'
+
+                try {
+                    const ws = new WebSocket(wsUrl)
+                    ws.onopen = () => {
+                        log('✅ Direct WebSocket connection successful')
+                        ws.close()
+                    }
+                    ws.onerror = (error) => {
+                        log(`❌ Direct WebSocket error: ${error}`)
+                    }
+                    ws.onclose = (event) => {
+                        log(`🔄 Direct WebSocket closed: ${event.code} - ${event.reason}`)
+                    }
+                } catch (wsError) {
+                    log(`❌ WebSocket creation failed: ${wsError.message}`)
+                }
+
+                // Wait a moment for WebSocket test
+                await new Promise(resolve => setTimeout(resolve, 2000))
+
+                const supabase = window.supabase.createClient(supabaseUrl, supabaseAnonKey, {
+                    realtime: {
+                        params: {
+                            eventsPerSecond: 10
+                        }
+                    }
+                })
+
+                log('✅ Supabase client created')
+
+                // Test database connection first
+                updateStatus('Testing database connection...')
+                const { error: dbError } = await supabase
+                    .from('chat_conversations')
+                    .select('count', { count: 'exact', head: true })
+
+                if (dbError) {
+                    log(`❌ Database error: ${dbError.message}`)
+                    updateStatus('Database connection failed')
+                    return
+                }
+
+                log('✅ Database connection successful')
+
+                // Test Realtime connection
+                updateStatus('Testing Realtime connection...')
+
+                const startTime = Date.now()
+
+                const testChannel = supabase
+                    .channel('debug-test-' + Date.now())
+                    .on('broadcast', { event: 'test' }, (payload) => {
+                        log(`📨 Broadcast received: ${JSON.stringify(payload)}`)
+                    })
+                    .subscribe((status) => {
+                        log(`🔄 Channel status: ${status}`)
+
+                        if (status === 'SUBSCRIBED') {
+                            const connectionTime = Date.now() - startTime
+                            log(`✅ Realtime connected in ${connectionTime}ms`)
+                            updateStatus(`Connected in ${connectionTime}ms`)
+
+                            // Test sending a message
+                            testChannel.send({
+                                type: 'broadcast',
+                                event: 'test',
+                                payload: { message: 'Hello from debug test!' }
+                            })
+
+                        } else if (status === 'CHANNEL_ERROR') {
+                            log('❌ Channel error')
+                            updateStatus('Channel error')
+
+                        } else if (status === 'CLOSED') {
+                            log('🔄 Channel closed')
+                            updateStatus('Channel closed')
+                        }
+                    })
+
+                log('📡 Test channel created, waiting for subscription...')
+
+                // Set timeout
+                setTimeout(() => {
+                    if (statusDiv.textContent.includes('Testing')) {
+                        log('❌ Connection timeout after 20 seconds')
+                        updateStatus('Connection timeout')
+                    }
+                }, 20000)
+
+            } catch (error) {
+                log(`❌ Error: ${error.message}`)
+                updateStatus('Error occurred')
+            }
+        }
+        
+        // Start test when page loads
+        window.addEventListener('load', testRealtime)
+    </script>
+</body>
+</html>

@@ -39,7 +39,7 @@ export function useAdminAccess() {
         return;
       }
 
-      // Get user admin role directly
+      // Get user admin role directly - admin_roles.user_id references auth.users.id directly
       const { data: adminRole, error: adminRoleError } = await supabase
         .from('admin_roles')
         .select(`

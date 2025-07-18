@@ -579,12 +579,14 @@ export interface SearchFilters {
   collectionIds?: string[]
   tags?: string[]
   contentTypes?: string[]
+  contentType?: string
   readStatus?: 'unread' | 'reading' | 'read'
   isFavorite?: boolean
   dateFrom?: string
   dateTo?: string
-  priority?: number
-  hasAnnotations?: boolean
+  dateRange?: string
+  priority?: string
+  hasAnnotations?: string
 }
 
 export interface ContentExport {

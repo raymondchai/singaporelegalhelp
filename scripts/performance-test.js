@@ -27,9 +27,9 @@ const CONFIG = {
     'iPad',
   ],
   networkConditions: [
-    { name: 'Fast 3G', downloadThroughput: 1.6 * 1024 * 1024 / 8, uploadThroughput: 750 * 1024 / 8, latency: 150 },
-    { name: '4G', downloadThroughput: 9 * 1024 * 1024 / 8, uploadThroughput: 9 * 1024 * 1024 / 8, latency: 170 },
-    { name: 'WiFi', downloadThroughput: 30 * 1024 * 1024 / 8, uploadThroughput: 15 * 1024 * 1024 / 8, latency: 2 },
+    { name: 'Fast 3G', downloadThroughput: 1600000, uploadThroughput: 750000, latency: 150 },
+    { name: '4G', downloadThroughput: 9000000, uploadThroughput: 9000000, latency: 170 },
+    { name: 'WiFi', downloadThroughput: 30000000, uploadThroughput: 15000000, latency: 2 },
   ],
   iterations: 3,
   outputDir: './performance-reports',

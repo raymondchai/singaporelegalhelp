@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -9,7 +10,24 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { BookOpen, MessageSquare, Plus, Edit, Trash2, Eye } from 'lucide-react'
+import {
+  BookOpen,
+  MessageSquare,
+  Plus,
+  Edit,
+  Trash2,
+  Eye,
+  Heart,
+  Scale,
+  Home,
+  Users,
+  Building,
+  Lightbulb,
+  Plane,
+  Calculator,
+  FileText,
+  ArrowRight
+} from 'lucide-react'
 
 interface LegalCategory {
   id: string
@@ -57,11 +75,13 @@ interface LegalQA {
 }
 
 export default function ContentManagementPage() {
+  const router = useRouter()
   const [categories, setCategories] = useState<LegalCategory[]>([])
   const [articles, setArticles] = useState<LegalArticle[]>([])
   const [qas, setQAs] = useState<LegalQA[]>([])
   const [loading, setLoading] = useState(true)
   const [selectedCategory, setSelectedCategory] = useState<string>('')
+  const [showNewLawAreaForm, setShowNewLawAreaForm] = useState(false)
 
   useEffect(() => {
     fetchData()
@@ -127,9 +147,126 @@ export default function ContentManagementPage() {
     )
   }
 
+  const lawAreas = [
+    {
+      name: 'Family Law',
+      description: 'Divorce, custody, matrimonial matters',
+      icon: Heart,
+      color: 'text-pink-600',
+      bgColor: 'bg-pink-50',
+      borderColor: 'border-pink-200',
+      href: '/admin/content/family-law'
+    },
+    {
+      name: 'Criminal Law',
+      description: 'Criminal charges, defense, legal procedures',
+      icon: Scale,
+      color: 'text-red-600',
+      bgColor: 'bg-red-50',
+      borderColor: 'border-red-200',
+      href: '/admin/content/criminal-law'
+    },
+    {
+      name: 'Property Law',
+      description: 'Real estate, leases, property transactions',
+      icon: Home,
+      color: 'text-green-600',
+      bgColor: 'bg-green-50',
+      borderColor: 'border-green-200',
+      href: '/admin/content/property-law'
+    },
+    {
+      name: 'Employment Law',
+      description: 'Employment contracts, workplace rights',
+      icon: Users,
+      color: 'text-blue-600',
+      bgColor: 'bg-blue-50',
+      borderColor: 'border-blue-200',
+      href: '/admin/content/employment-law'
+    },
+    {
+      name: 'Contract Law',
+      description: 'Business contracts and agreements',
+      icon: Building,
+      color: 'text-purple-600',
+      bgColor: 'bg-purple-50',
+      borderColor: 'border-purple-200',
+      href: '/admin/content/contract-law'
+    },
+    {
+      name: 'Intellectual Property',
+      description: 'Trademarks, patents, copyright',
+      icon: Lightbulb,
+      color: 'text-yellow-600',
+      bgColor: 'bg-yellow-50',
+      borderColor: 'border-yellow-200',
+      href: '/admin/content/intellectual-property'
+    },
+    {
+      name: 'Immigration Law',
+      description: 'Work permits, PR applications',
+      icon: Plane,
+      color: 'text-indigo-600',
+      bgColor: 'bg-indigo-50',
+      borderColor: 'border-indigo-200',
+      href: '/admin/content/immigration-law'
+    },
+    {
+      name: 'Debt & Bankruptcy',
+      description: 'Debt recovery, bankruptcy proceedings',
+      icon: Calculator,
+      color: 'text-orange-600',
+      bgColor: 'bg-orange-50',
+      borderColor: 'border-orange-200',
+      href: '/admin/content/debt-bankruptcy'
+    }
+  ]
+
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        {/* Law Areas Navigation */}
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-gray-900">Content Management by Practice Area</h2>
+            <Button
+              onClick={() => setShowNewLawAreaForm(true)}
+              className="flex items-center space-x-2"
+            >
+              <Plus className="h-4 w-4" />
+              <span>Add New Law Area</span>
+            </Button>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {lawAreas.map((area) => {
+              const IconComponent = area.icon
+              return (
+                <Card
+                  key={area.name}
+                  className={`cursor-pointer transition-all duration-200 hover:shadow-lg ${area.borderColor} ${area.bgColor}`}
+                  onClick={() => router.push(area.href)}
+                >
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-3 mb-2">
+                          <IconComponent className={`h-6 w-6 ${area.color}`} />
+                          <h3 className="font-semibold text-gray-900">{area.name}</h3>
+                        </div>
+                        <p className="text-sm text-gray-600 mb-3">{area.description}</p>
+                        <div className="flex items-center text-sm text-blue-600">
+                          <span>Manage Content</span>
+                          <ArrowRight className="h-4 w-4 ml-1" />
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )
+            })}
+          </div>
+        </div>
         {/* Header */}
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Content Management</h1>

@@ -66,19 +66,24 @@ export default function AdminDashboard() {
         return;
       }
 
-      // Check admin role
-      const { data: adminRole } = await supabase
-        .from('admin_roles')
-        .select(`
-          role,
-          is_active,
-          permissions
-        `)
-        .eq('user_id', session.user.id)
-        .eq('is_active', true)
-        .single();
+      // Use API route instead of direct Supabase call
+      const response = await fetch('/api/admin/roles', {
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json'
+        }
+      });
 
-      if (!adminRole || !adminRole.is_active) {
+      if (!response.ok) {
+        console.error('Admin roles API error:', response.status);
+        setError('Failed to verify admin access');
+        setLoading(false);
+        return;
+      }
+
+      const data = await response.json();
+
+      if (!data.isAdmin || !data.is_active) {
         setError('Admin access required. Contact system administrator.');
         setLoading(false);
         return;
@@ -179,14 +184,13 @@ export default function AdminDashboard() {
   ];
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div>
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 flex items-center">
-              <Shield className="h-8 w-8 mr-3 text-red-600" />
-              Admin Dashboard
+            <h1 className="text-3xl font-bold text-gray-900">
+              Revenue Dashboard
             </h1>
             <p className="text-gray-600">Revenue analytics and business intelligence</p>
           </div>

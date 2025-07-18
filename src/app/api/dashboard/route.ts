@@ -37,12 +37,14 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    // Get user profile from profiles table (standardized)
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
+    // Get user profile from user_profiles table (correct table name)
+    const { data: profiles, error: profileError } = await supabase
+      .from('user_profiles')
       .select('*')
-      .eq('id', user.id)
-      .single();
+      .eq('user_id', user.id)
+      .limit(1);
+
+    const profile = profiles && profiles.length > 0 ? profiles[0] : null;
 
     if (profileError || !profile) {
       console.log('❌ Dashboard API: Profile not found:', profileError);

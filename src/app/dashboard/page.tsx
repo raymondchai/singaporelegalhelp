@@ -39,8 +39,9 @@ function useAdminAccess() {
     const checkAdminAccess = async () => {
       try {
         setLoading(true);
+
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-        
+
         if (sessionError || !session) {
           setIsAdmin(false);
           setAdminRole(null);
@@ -48,31 +49,30 @@ function useAdminAccess() {
           return;
         }
 
-        const { data: adminRole, error: profileError } = await supabase
-          .from('admin_roles')
-          .select(`
-            role,
-            permissions,
-            is_active
-          `)
-          .eq('user_id', session.user.id)
-          .eq('is_active', true)
-          .single();
+        // Use API route for consistency with admin dashboard
+        const response = await fetch('/api/admin/roles', {
+          headers: {
+            'Authorization': `Bearer ${session.access_token}`,
+            'Content-Type': 'application/json'
+          }
+        });
 
-        if (profileError) {
-          // No admin role found is not an error - user is just not an admin
+        if (!response.ok) {
+          console.error('Admin roles API error:', response.status);
           setIsAdmin(false);
           setAdminRole(null);
           setLoading(false);
           return;
         }
 
-        if (adminRole && adminRole.is_active) {
+        const data = await response.json();
+
+        if (data.isAdmin && data.role) {
           setIsAdmin(true);
           setAdminRole({
-            role: adminRole.role,
-            permissions: adminRole.permissions || [],
-            is_active: adminRole.is_active
+            role: data.role,
+            permissions: data.permissions || [],
+            is_active: data.is_active
           });
         } else {
           setIsAdmin(false);
@@ -104,9 +104,11 @@ interface DashboardStats {
 export default function DashboardPage() {
   const { user, profile, loading } = useAuth()
   const router = useRouter()
-  
+
   // ADD ADMIN ACCESS CHECK
   const { isAdmin, loading: adminLoading } = useAdminAccess()
+
+
   
   const [stats, setStats] = useState<DashboardStats>({
     totalDocuments: 0,
@@ -115,6 +117,7 @@ export default function DashboardPage() {
     monthlyUsage: 0
   })
   const [statsLoading, setStatsLoading] = useState(true)
+  const [statsError, setStatsError] = useState<string | null>(null)
 
   useEffect(() => {
     if (!loading && !user) {
@@ -125,7 +128,7 @@ export default function DashboardPage() {
   // ADMIN REDIRECT LOGIC
   useEffect(() => {
     if (!loading && !adminLoading && user && isAdmin) {
-      console.log('Admin user detected, redirecting to admin dashboard...')
+      console.log('Admin user detected, redirecting to admin dashboard')
       router.replace('/admin/dashboard')
       return
     }
@@ -138,6 +141,7 @@ export default function DashboardPage() {
 
       try {
         setStatsLoading(true)
+        setStatsError(null)
         console.log('Fetching dashboard stats for user:', user.id)
 
         // Get current session to ensure auth is properly set
@@ -223,6 +227,7 @@ export default function DashboardPage() {
         })
       } catch (error) {
         console.error('Error fetching dashboard stats:', error)
+        setStatsError(error instanceof Error ? error.message : 'Failed to load dashboard data')
         // Set default stats on error
         setStats({
           totalDocuments: 0,
@@ -312,9 +317,18 @@ export default function DashboardPage() {
 
   return (
     <DashboardLayout
-      title="Customer Dashboard"
+      title="My Dashboard"
       subtitle={`Welcome back, ${profile?.full_name || 'User'}! Here's what's happening with your account.`}
     >
+      {/* Error Display */}
+      {statsError && (
+        <div className="bg-red-50 border border-red-200 rounded-md p-4 mb-6">
+          <div className="text-red-800">
+            <strong>Error loading dashboard data:</strong> {statsError}
+          </div>
+        </div>
+      )}
+
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <Card>
@@ -442,7 +456,7 @@ export default function DashboardPage() {
           <CardContent className="space-y-3">
             <div className="flex justify-between">
               <span className="text-sm text-gray-600">Email:</span>
-              <span className="text-sm font-medium">{user.email}</span>
+              <span className="text-sm font-medium">{user?.email || 'Loading...'}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-sm text-gray-600">Full Name:</span>

@@ -197,14 +197,14 @@ export class EnhancedAnalyticsService {
 
     const { data: articles } = await supabase
       .from('legal_articles')
-      .select('id, title, practice_area')
+      .select('id, title, category_id')
       .in('id', mostViewedIds)
 
     const mostViewedArticles = articles?.map(article => ({
       id: article.id,
       title: article.title,
       views: articleViewCounts[article.id]?.count || 0,
-      practiceArea: article.practice_area
+      practiceArea: 'General' // Use category_id to get practice area if needed
     })) || []
 
     // Bookmark trends by month

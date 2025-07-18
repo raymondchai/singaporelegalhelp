@@ -35,7 +35,7 @@ export async function PUT(request: NextRequest) {
     const body = await request.json()
     const validatedData = notificationPreferencesSchema.parse(body)
 
-    // Update notification preferences
+    // Update notification preferences - use correct table and column names
     const updateData: any = {
       notification_preferences: {
         email: validatedData.email,
@@ -44,14 +44,16 @@ export async function PUT(request: NextRequest) {
       },
     }
 
-    if (validatedData.language) {
-      updateData.language_preference = validatedData.language
-    }
+    // Note: language_preference column doesn't exist in user_profiles table yet
+    // Commenting out until column is added to schema
+    // if (validatedData.language) {
+    //   updateData.language_preference = validatedData.language
+    // }
 
     const { error: updateError } = await supabase
-      .from('profiles')
+      .from('user_profiles')
       .update(updateData)
-      .eq('id', user.id)
+      .eq('user_id', user.id)
 
     if (updateError) {
       console.error('Notification preferences update error:', updateError)

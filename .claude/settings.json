@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "npm run test"
+    ],
+    "deny": []
+  }
+}

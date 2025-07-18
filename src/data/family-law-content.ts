@@ -9,12 +9,27 @@ export const familyLawArticles = [
     category_id: familyLawDatabaseConfig.categoryId,
     title: "Divorce in Singapore: Complete Legal Guide",
     slug: "divorce-singapore-complete-guide",
-    summary: "Comprehensive guide to divorce proceedings in Singapore, covering grounds, procedures, costs, and timelines under the Women's Charter",
-    content: `# Divorce in Singapore: Complete Legal Guide
+    summary: "Comprehensive guide to divorce proceedings in Singapore, covering grounds, procedures, costs, and timelines under the Women's Charter, including 2024 updates on Divorce by Mutual Agreement",
+    content: `# Divorce in Singapore: Complete Legal Guide (2024 Updated)
 
 ## Introduction
 
-Divorce is one of life's most challenging experiences, involving complex legal, emotional, and financial considerations. In Singapore, divorce proceedings are governed primarily by the Women's Charter (Cap. 353) and handled by the Family Justice Courts. This comprehensive guide will walk you through everything you need to know about getting divorced in Singapore.
+Divorce in Singapore is governed by the Women's Charter and overseen by the Family Justice Courts. In 2024, significant updates – including a new "Divorce by Mutual Agreement" (DMA) ground – have modernized the process to reduce acrimony. This guide provides a clear overview of who can file for divorce, the accepted grounds (old and new), and how the divorce procedure works (simplified uncontested track vs. contested track). Understanding the legal framework helps set realistic expectations on timelines, costs, and outcomes for those considering divorce.
+
+## Legal Eligibility for Divorce
+
+Before filing for divorce in Singapore, certain preliminary conditions must be met:
+
+### Jurisdiction Requirements
+At least one spouse must be legally connected to Singapore – either by being a Singapore Citizen, by being domiciled in Singapore, or by being habitually resident in Singapore for at least 3 years immediately before filing. This ensures the courts have authority to hear the case.
+
+### Minimum Marriage Duration
+Generally, you must have been married for at least 3 years before you can file for a divorce. This rule aims to prevent impulsive divorces. If you've been married under 3 years, you can only proceed if you obtain the court's permission by proving exceptional hardship or exceptional depravity caused by your spouse. Such cases are strict and require strong evidence of severe circumstances.
+
+### Non-Muslim Marriage
+The civil divorce process under the Women's Charter applies to non-Muslim marriages. Marriages registered under Muslim law are handled separately by the Syariah Court.
+
+If these conditions are satisfied, you may file a divorce writ in the Family Court.
 
 ## Legal Framework
 
@@ -27,37 +42,62 @@ This Act established the Family Justice Courts and introduced mandatory mediatio
 ### Syariah Court Jurisdiction
 For Muslim marriages registered under the Administration of Muslim Law Act, divorce proceedings are handled by the Syariah Court, which follows Islamic law principles.
 
-## Grounds for Divorce
+## Sole Ground for Divorce: Irretrievable Breakdown
 
-Under Section 95 of the Women's Charter, there is only one ground for divorce: the irretrievable breakdown of marriage. This must be proven by establishing one or more of the following facts:
+Singapore has a single overarching ground for divorce: **the irretrievable breakdown of the marriage**. This means the marriage has broken down to a point where it cannot be saved. However, to prove irretrievable breakdown, the law requires you to substantiate one of six permitted facts (as of 2024):
 
 ### 1. Adultery
-- Your spouse has committed adultery
-- You find it intolerable to live with your spouse
-- Must be proven with evidence (not just suspicion)
+Your spouse has committed adultery and you find it intolerable to live with them. This requires evidence of the spouse's voluntary sexual relations with another person. (No minimum time period required.)
 
-### 2. Unreasonable Behaviour
-- Your spouse has behaved in such a way that you cannot reasonably be expected to live with them
-- Examples include physical or mental cruelty, excessive gambling, drug abuse, or persistent refusal to maintain the family
+### 2. Unreasonable Behavior
+Your spouse has behaved in such a way that you cannot reasonably be expected to live with them. This is broad – examples include domestic violence, emotional abuse, addiction, or irresponsible behavior. (No minimum time period; it's about the severity of conduct.)
 
 ### 3. Desertion
-- Your spouse has deserted you for a continuous period of at least 2 years
-- Desertion must be without your consent and without reasonable cause
+Your spouse deserted you for a continuous period of at least 2 years without your consent or a good reason. Essentially, they abandoned the marriage against your wishes.
 
-### 4. Separation (2 years with consent)
-- You and your spouse have lived apart for at least 2 years
-- Your spouse consents to the divorce
+### 4. Separation for ≥3 Years with Consent
+You and your spouse have lived apart for at least 3 years and your spouse consents to the divorce. The separation must be continuous and intended (not just living in separate rooms – usually in different households). Both must agree to use this as the basis.
 
-### 5. Separation (4 years without consent)
-- You and your spouse have lived apart for at least 4 years
-- No consent from your spouse is required
+### 5. Separation for ≥4 Years (No Consent Needed)
+You have lived apart for at least 4 years. In this case, the divorce can proceed even if one spouse objects, due to the prolonged separation.
 
-## Divorce Procedures
+### 6. Mutual Agreement of Breakdown (NEW 2024)
+**New in effect from 1 July 2024**, couples can cite Divorce by Mutual Agreement (DMA) – i.e. both spouses jointly agree that their marriage has irretrievably broken down. This new fact allows a no-fault divorce without needing to assign blame or live apart for years. Both parties must provide a written agreement detailing the reasons the marriage fell apart, and affirm that reconciliation was attempted but failed. The court will review the application and must be satisfied the agreement is genuine before granting a divorce.
 
-### Step 1: Filing the Writ for Divorce
-- File at the Family Justice Courts
-- Include Statement of Claim detailing grounds for divorce
-- Pay court fees (approximately $600-$900)
+**Important:** Regardless of which fact is used, the court must be convinced the marriage has truly broken down with no hope of reconciliation. Even under the new mutual agreement ground, the judge has discretion to reject the application if it appears the marriage can still be saved. This safeguard maintains that divorce is taken seriously and not granted on a whim.
+
+## Contested vs. Uncontested Divorce
+
+### Uncontested (Simplified) Divorce
+If both spouses agree on the decision to divorce and on all ancillary matters (child arrangements, division of assets, maintenance), the divorce can proceed on a simplified uncontested track. In an uncontested case, no trial is needed – parties file a draft agreement (or terms of settlement) with the court. The court may even dispense with requiring the parties to attend a hearing in person. Uncontested divorces are typically faster (sometimes concluded in a few months) and much less costly than contested ones. In fact, under the Family Justice Rules, if everything is in order, an uncontested divorce hearing can be scheduled as soon as 10 days after the case is set down, and the judge can grant the Interim Judgment based on the agreed terms without lengthy proceedings.
+
+### Contested Divorce
+If spouses cannot agree on the divorce or any ancillary matter, the case is contested. A contested divorce moves to the normal track litigation process:
+- One spouse (Plaintiff) files a Writ for Divorce along with a Statement of Claim (outlining the facts relied on, e.g. unreasonable behavior particulars) and Statement of Particulars
+- The other spouse (Defendant) can file a Memorandum of Appearance indicating intention to contest, followed by a Defence (and possibly Counterclaim for their own grounds)
+- Parties exchange pleadings and then evidence in the form of Affidavits of Evidence-in-Chief (written testimony) if proceeding to trial
+- Case Conferences: The court will call pre-trial conferences to manage the case (ensure timelines, consider if mediation is possible, etc.)
+- Mandatory Mediation/Counseling: For contested cases, especially with children, the Family Justice Courts usually require parties to attend mediation and/or counseling sessions to attempt settlement. This is part of the "therapeutic justice" approach to reduce conflict
+- If no settlement, the case goes to a trial where both sides give evidence and are cross-examined. A judge then decides whether the marriage has irretrievably broken down (i.e. if the fact is proven) and will grant an Interim Judgment of Divorce if so
+
+Contested divorces take significantly longer – often 9 to 18 months or more, depending on complexity. The legal costs are also much higher due to the extended court process. At any point, however, the parties can decide to settle, which would convert the case into an uncontested proceeding and shorten the process.
+
+## Mandatory Pre-Divorce Steps (for Parents)
+
+Parties with children below 21 years old must fulfill certain pre-filing requirements aimed at protecting children's welfare:
+
+### Mandatory Co-Parenting Programme (CPP)
+Introduced in 2024, this is a compulsory online program for all divorcing parents of minors. Effective 1 July 2024, parents must complete the CPP before filing for divorce. The programme educates parents on co-parenting, impacts of divorce on children, and encourages putting children's interests first. It replaces the older Parenting PACT workshop. Proof of completion (certificate) must be submitted with the divorce filing.
+
+### Mandatory Parenting Plan
+In divorce applications (especially under the new DMA ground or simplified track), parents are required to submit a proposed Parenting Plan detailing custody arrangements, living arrangements, visitation schedule, education plans, etc. This plan encourages parents to thoughtfully plan for their children's future post-divorce.
+
+Additionally, if the parties have not already attempted marital counseling, they are encouraged to do so. The court may adjourn proceedings to give a chance for reconciliation if it believes the marriage could possibly be saved – particularly in mutual agreement cases, since no specific fault is alleged.
+
+## Divorce Proceedings: Step-by-Step
+
+### 1. Filing the Divorce Application
+The process begins with the Plaintiff filing a Writ for Divorce, Statement of Claim, Statement of Particulars, and (if children) a Proposed Parenting Plan and relevant affidavits. The court filing fee is roughly in the few hundred dollars range (e.g. about S$290 for simplified track e-filing). If using a lawyer, the lawyer drafts and files these on the client's behalf. If filing under DMA (mutual agreement), the joint agreement stating reasons for breakdown and details of reconciliation efforts must be included.
 
 ### Step 2: Service of Documents
 - Serve divorce papers on your spouse
@@ -255,14 +295,34 @@ The key to a successful divorce outcome is preparation, understanding the legal 
 
   {
     category_id: familyLawDatabaseConfig.categoryId,
-    title: "Child Custody and Care Arrangements",
-    slug: "child-custody-care-arrangements-singapore",
-    summary: "Complete guide to child custody laws, care arrangements, and access orders in Singapore family courts",
-    content: `# Child Custody and Care Arrangements in Singapore
+    title: "Child Custody, Care and Control, and Access in Singapore",
+    slug: "child-custody-care-control-access-singapore",
+    summary: "Understanding child custody in Singapore – A detailed look at how Singapore courts determine custody arrangements, the difference between custody vs. care & control, and how access (visitation) is managed, all with the child's welfare as the paramount consideration",
+    content: `# Child Custody, Care and Control, and Access in Singapore
 
 ## Introduction
 
-Child custody matters are among the most emotionally challenging aspects of family law. In Singapore, the Family Justice Courts prioritize the best interests of the child above all other considerations when making custody and care arrangements. This comprehensive guide explains the different types of custody, factors considered by courts, and practical steps for parents navigating custody disputes.
+When parents divorce or separate, decisions about the children are often the most emotionally charged. Singapore's family law emphasizes that the best interests of the child are the top priority in any custody decision. This article explains key concepts – custody, care and control, and access – and how courts approach issues like joint custody, primary caregiving, and visitation schedules. Whether you're a parent worried about losing your child or trying to understand your rights, knowing how these principles work will help you navigate custody discussions more calmly and strategically.
+
+## Key Principles: Welfare of the Child
+
+Under Singapore law (Guardianship of Infants Act and the Women's Charter), the welfare of the child is the "first and paramount consideration" for the court in any decision about the child's upbringing. This means the judge's primary concern is: what arrangement will best promote the child's well-being, stability, and development?
+
+### Factors Courts Consider
+
+**Child's needs and welfare:** The child's age, routine, health, education needs, emotional bonds, and overall well-being in each parent's care.
+
+**Primary caregiver role:** Who has been the main caregiver during the marriage (e.g. handling daily meals, school, healthcare). Courts try to minimize disruption to the child's life.
+
+**Parental abilities:** Each parent's capacity to provide a safe, loving environment – including their work schedules, living accommodations, support from extended family, etc.
+
+**Child's wishes:** If the child is of sufficient age and maturity, the court may take into account his or her own wishes (though this is not decisive, just one factor).
+
+**Maintaining relationships:** The importance of the child having continued contact with both parents (assuming it's healthy to do so). The court generally believes it's beneficial for children to have both parents involved in their lives.
+
+**Any risk factors:** Evidence of family violence, abuse or neglect by a parent will weigh heavily against awarding that parent care and control.
+
+Courts do not presume that one parent is automatically entitled to custody or care/control based on gender, though in practice mothers of young children often take on the primary caregiver role and may have an advantage for care and control of very young kids. The guiding test always comes back to the child's best interests.
 
 ## Legal Framework
 
@@ -298,6 +358,23 @@ Established specialized Family Courts and introduced mandatory mediation for cus
 - Right of non-custodial parent to spend time with child
 - Can be supervised or unsupervised
 - Includes overnight stays, holidays, and special occasions
+
+## Access (Visitation) Arrangements
+
+For the parent who does not have care and control, the court will ensure there is appropriate access unless it would harm the child. Access can range from liberal overnight and weekend access to supervised visitation in extreme cases:
+
+### Reasonable Access
+This means the parents work out the schedule between themselves flexibly. It gives room for adjusting as needed. Courts sometimes use this when parents are cooperative. However, what's "reasonable" can be interpreted differently, so if conflict arises, a fixed schedule is safer.
+
+### Fixed Access Schedule
+Commonly, a non-resident parent might get every alternate weekend from Friday evening to Sunday night, half of the school holidays, sharing of important festivals (e.g. alternate years for Chinese New Year or Christmas), regular phone or video calls, and perhaps a weekday evening visit or mid-week dinner.
+
+**Example order:** "Father shall have access on Wednesdays 6-9pm and on alternating weekends from Saturday 10am to Sunday 8pm, plus half of the June and December school holidays."
+
+### Supervised Access
+In cases where there are concerns about the child's safety or a long absence of contact, the court may order that access be supervised by a third party or at a neutral venue. For instance, if a parent has a history of violence or the child is initially uncomfortable, access could take place at a Supervised Visitation Centre (MSF provides such services) where trained personnel observe and ensure the child is safe. The goal is often to move from supervised to unsupervised once trust is rebuilt.
+
+Courts can also order no access in the most severe cases (e.g., if a parent poses a serious danger or extreme emotional harm to the child). But cutting off a parent entirely is a last resort. Even incarcerated parents have sometimes been allowed letter or phone contact unless it's harmful.
 
 ## Best Interests of the Child Principle
 

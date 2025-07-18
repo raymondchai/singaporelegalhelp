@@ -47,27 +47,22 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Log search result click (with graceful degradation)
-    try {
-      const { error: clickError } = await supabase
-        .from('search_result_clicks')
-        .insert({
-          query: query.trim(),
-          clicked_result_id,
-          clicked_result_type,
-          clicked_result_position: clicked_result_position || null,
-          user_id: userId || null,
-          session_id: session_id || null,
-          clicked_at: new Date().toISOString()
-        });
+    // Log search result click
+    const { error: clickError } = await supabase
+      .from('search_result_clicks')
+      .insert({
+        query: query.trim(),
+        clicked_result_id,
+        clicked_result_type,
+        clicked_result_position: clicked_result_position || null,
+        user_id: userId || null,
+        session_id: session_id || null,
+        clicked_at: new Date().toISOString()
+      });
 
-      if (clickError) {
-        console.error('Search click analytics error (table may not exist):', clickError);
-        // Don't fail the request if analytics table doesn't exist
-      }
-    } catch (tableError) {
-      console.log('Search analytics table not available, skipping click tracking');
-      // Gracefully handle missing table
+    if (clickError) {
+      console.error('Search click analytics error:', clickError);
+      // Don't fail the request if analytics fails
     }
 
     // Update search analytics with click data

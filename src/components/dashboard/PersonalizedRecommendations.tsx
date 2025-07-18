@@ -19,8 +19,8 @@ import {
   Eye
 } from 'lucide-react'
 import { PersonalizedRecommendation } from '@/types/dashboard'
-import { createRecommendationEngine } from '@/lib/recommendations'
 import { useAuth } from '@/contexts/auth-context'
+import { supabase } from '@/lib/supabase'
 import Link from 'next/link'
 
 interface PersonalizedRecommendationsProps {
@@ -51,9 +51,29 @@ export default function PersonalizedRecommendations({
 
     try {
       setLoading(true)
-      const engine = createRecommendationEngine(user.id)
-      const recs = await engine.generateRecommendations(limit)
-      setRecommendations(recs)
+
+      // Get auth token for API call
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.access_token) {
+        console.error('No valid session for recommendations')
+        return
+      }
+
+      // Use API route instead of direct database queries
+      const response = await fetch(`/api/dashboard/recommendations?limit=${limit}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${session.access_token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+
+      if (!response.ok) {
+        throw new Error(`API call failed: ${response.status}`)
+      }
+
+      const data = await response.json()
+      setRecommendations(data.recommendations || [])
     } catch (error) {
       console.error('Error loading recommendations:', error)
       toast({
@@ -107,15 +127,19 @@ export default function PersonalizedRecommendations({
   }
 
   const getContentUrl = (recommendation: PersonalizedRecommendation) => {
+    // Safely handle undefined practiceArea
+    const practiceArea = recommendation.practiceArea || 'general'
+    const practiceAreaSlug = practiceArea.toLowerCase().replace(/\s+/g, '-')
+
     switch (recommendation.type) {
       case 'article':
-        return `/legal-guide/${recommendation.practiceArea.toLowerCase().replace(/\s+/g, '-')}/articles/${recommendation.contentId}`
+        return `/legal-guide/${practiceAreaSlug}/articles/${recommendation.contentId}`
       case 'qa':
-        return `/legal-guide/${recommendation.practiceArea.toLowerCase().replace(/\s+/g, '-')}/qa/${recommendation.contentId}`
+        return `/legal-guide/${practiceAreaSlug}/qa/${recommendation.contentId}`
       case 'template':
         return `/document-builder/templates/${recommendation.contentId}`
       case 'practice_area':
-        return `/legal-guide/${recommendation.practiceArea.toLowerCase().replace(/\s+/g, '-')}`
+        return `/legal-guide/${practiceAreaSlug}`
       default:
         return '#'
     }

@@ -11,6 +11,7 @@ const supabaseAdmin = createClient(
 const ADMIN_USER_ID = '0f713749-080a-4e4f-bab3-07bf10a6e348';
 
 const sampleTemplates = [
+  // EXISTING TEMPLATES
   {
     title: 'Employment Contract Template',
     description: 'Comprehensive employment contract template compliant with Singapore Employment Act. Includes salary, benefits, termination clauses, and confidentiality agreements.',
@@ -116,6 +117,98 @@ const sampleTemplates = [
     estimated_time_minutes: 20,
     singapore_compliant: true,
     legal_review_required: true,
+    status: 'published',
+    created_by: ADMIN_USER_ID
+  },
+
+  // PHASE 1: HIGH-DEMAND BUSINESS TEMPLATES (5 NEW TEMPLATES)
+  {
+    title: 'Freelancer/Contractor Agreement',
+    description: 'Comprehensive freelancer and contractor agreement template compliant with Singapore Employment Act. Includes project scope, payment terms, CPF considerations, and work permit requirements.',
+    category: 'Employment Law',
+    subcategory: 'Contractor Agreements',
+    file_name: 'freelancer-contractor-agreement.docx',
+    file_path: 'templates/employment/freelancer-contractor-agreement.docx',
+    file_size: 42000,
+    file_type: 'docx',
+    subscription_tier: 'basic',
+    price_sgd: 20.00,
+    difficulty_level: 'intermediate',
+    estimated_time_minutes: 25,
+    singapore_compliant: true,
+    legal_review_required: true,
+    status: 'published',
+    created_by: ADMIN_USER_ID
+  },
+  {
+    title: 'Private Property Tenancy Agreement',
+    description: 'Standard tenancy agreement for private properties in Singapore. Covers rental terms, deposit, utilities, tenant obligations, and URA guidelines compliance.',
+    category: 'Property Law',
+    subcategory: 'Rental Agreements',
+    file_name: 'private-property-tenancy.docx',
+    file_path: 'templates/property/private-property-tenancy.docx',
+    file_size: 40000,
+    file_type: 'docx',
+    subscription_tier: 'basic',
+    price_sgd: 25.00,
+    difficulty_level: 'basic',
+    estimated_time_minutes: 20,
+    singapore_compliant: true,
+    legal_review_required: false,
+    status: 'published',
+    created_by: ADMIN_USER_ID
+  },
+  {
+    title: 'Partnership Agreement Template',
+    description: 'Comprehensive partnership agreement for Singapore businesses. Includes profit sharing, management structure, ACRA registration requirements, and partnership tax implications.',
+    category: 'Corporate Law',
+    subcategory: 'Business Partnerships',
+    file_name: 'partnership-agreement.docx',
+    file_path: 'templates/corporate/partnership-agreement.docx',
+    file_size: 48000,
+    file_type: 'docx',
+    subscription_tier: 'premium',
+    price_sgd: 45.00,
+    difficulty_level: 'advanced',
+    estimated_time_minutes: 35,
+    singapore_compliant: true,
+    legal_review_required: true,
+    status: 'published',
+    created_by: ADMIN_USER_ID
+  },
+  {
+    title: 'Personal Loan Agreement',
+    description: 'Personal loan agreement template compliant with Singapore Moneylenders Act. Includes interest rate caps, repayment terms, and borrower protection clauses.',
+    category: 'Contract Law',
+    subcategory: 'Loan Agreements',
+    file_name: 'personal-loan-agreement.docx',
+    file_path: 'templates/contracts/personal-loan-agreement.docx',
+    file_size: 35000,
+    file_type: 'docx',
+    subscription_tier: 'basic',
+    price_sgd: 30.00,
+    difficulty_level: 'intermediate',
+    estimated_time_minutes: 20,
+    singapore_compliant: true,
+    legal_review_required: true,
+    status: 'published',
+    created_by: ADMIN_USER_ID
+  },
+  {
+    title: 'Resignation Letter Template',
+    description: 'Professional resignation letter template compliant with Singapore Employment Act. Includes proper notice periods, handover procedures, and final settlement terms.',
+    category: 'Employment Law',
+    subcategory: 'Employment Letters',
+    file_name: 'resignation-letter.docx',
+    file_path: 'templates/employment/resignation-letter.docx',
+    file_size: 25000,
+    file_type: 'docx',
+    subscription_tier: 'free',
+    price_sgd: 0.00,
+    difficulty_level: 'basic',
+    estimated_time_minutes: 10,
+    singapore_compliant: true,
+    legal_review_required: false,
     status: 'published',
     created_by: ADMIN_USER_ID
   }
@@ -269,6 +362,137 @@ const sampleVariables = [
     singapore_validation: true,
     select_options: ["Singapore Courts", "Arbitration", "Mediation"],
     description: 'Select dispute resolution method'
+  },
+
+  // ENHANCED VARIABLES FOR NEW TEMPLATES
+  // Business & Employment Variables
+  {
+    variable_name: 'work_permit_type',
+    display_label: 'Work Permit Type',
+    variable_type: 'select',
+    is_required: false,
+    category: 'employment',
+    singapore_validation: true,
+    select_options: ["Singapore Citizen", "PR", "Employment Pass", "S Pass", "Work Permit", "Dependent Pass"],
+    description: 'Select work authorization status'
+  },
+  {
+    variable_name: 'cpf_contribution',
+    display_label: 'CPF Contribution Required',
+    variable_type: 'select',
+    is_required: false,
+    category: 'employment',
+    singapore_validation: true,
+    select_options: ["Yes - Employee & Employer", "Yes - Employee Only", "No - Foreigner", "Not Applicable"],
+    description: 'CPF contribution requirements'
+  },
+  {
+    variable_name: 'project_scope',
+    display_label: 'Project Scope',
+    variable_type: 'textarea',
+    is_required: true,
+    category: 'business',
+    singapore_validation: false,
+    description: 'Detailed description of work to be performed'
+  },
+  {
+    variable_name: 'payment_schedule',
+    display_label: 'Payment Schedule',
+    variable_type: 'select',
+    is_required: true,
+    category: 'financial',
+    singapore_validation: false,
+    select_options: ["Upon Completion", "Monthly", "Bi-weekly", "Weekly", "Milestone-based", "50% Upfront, 50% Completion"],
+    description: 'Select payment frequency'
+  },
+  {
+    variable_name: 'notice_period_days',
+    display_label: 'Notice Period (Days)',
+    variable_type: 'number',
+    is_required: true,
+    category: 'employment',
+    singapore_validation: true,
+    validation_pattern: '^[0-9]+$',
+    validation_message: 'Must be a valid number of days (minimum 1 day for Employment Act)',
+    description: 'Notice period in days as per Employment Act'
+  },
+
+  // Property Variables
+  {
+    variable_name: 'property_type',
+    display_label: 'Property Type',
+    variable_type: 'select',
+    is_required: true,
+    category: 'property',
+    singapore_validation: true,
+    select_options: ["HDB Flat", "Private Condominium", "Landed Property", "Commercial Property", "Industrial Property"],
+    description: 'Type of property being rented'
+  },
+  {
+    variable_name: 'property_address',
+    display_label: 'Property Address',
+    variable_type: 'textarea',
+    is_required: true,
+    category: 'property',
+    singapore_validation: true,
+    description: 'Full property address including postal code'
+  },
+  {
+    variable_name: 'monthly_rent',
+    display_label: 'Monthly Rent (SGD)',
+    variable_type: 'number',
+    is_required: true,
+    category: 'financial',
+    singapore_validation: false,
+    validation_pattern: '^[0-9]+(\\.[0-9]{1,2})?$',
+    validation_message: 'Enter valid amount in SGD (e.g., 2500.00)',
+    description: 'Monthly rental amount in Singapore Dollars'
+  },
+  {
+    variable_name: 'security_deposit',
+    display_label: 'Security Deposit (SGD)',
+    variable_type: 'number',
+    is_required: true,
+    category: 'financial',
+    singapore_validation: false,
+    validation_pattern: '^[0-9]+(\\.[0-9]{1,2})?$',
+    validation_message: 'Enter valid amount in SGD',
+    description: 'Security deposit amount (typically 1-2 months rent)'
+  },
+
+  // Loan & Financial Variables
+  {
+    variable_name: 'loan_amount',
+    display_label: 'Loan Amount (SGD)',
+    variable_type: 'number',
+    is_required: true,
+    category: 'financial',
+    singapore_validation: true,
+    validation_pattern: '^[0-9]+(\\.[0-9]{1,2})?$',
+    validation_message: 'Enter valid loan amount in SGD',
+    description: 'Principal loan amount in Singapore Dollars'
+  },
+  {
+    variable_name: 'interest_rate',
+    display_label: 'Interest Rate (%)',
+    variable_type: 'number',
+    is_required: true,
+    category: 'financial',
+    singapore_validation: true,
+    validation_pattern: '^[0-9]+(\\.[0-9]{1,2})?$',
+    validation_message: 'Interest rate must comply with Moneylenders Act (max 4% per month)',
+    description: 'Annual interest rate percentage'
+  },
+  {
+    variable_name: 'repayment_period_months',
+    display_label: 'Repayment Period (Months)',
+    variable_type: 'number',
+    is_required: true,
+    category: 'financial',
+    singapore_validation: false,
+    validation_pattern: '^[0-9]+$',
+    validation_message: 'Enter valid number of months',
+    description: 'Loan repayment period in months'
   }
 ];
 

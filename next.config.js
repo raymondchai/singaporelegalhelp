@@ -7,16 +7,19 @@ const nextConfig = {
   // Enable React strict mode for better development experience
   reactStrictMode: true,
   
-  // CRITICAL: Disable type checking and linting during Amplify builds
-  // These should be handled during development/CI, not production builds
   typescript: {
-    // Disable type checking during builds in production/Amplify
-    ignoreBuildErrors: isProduction || isAmplify,
+    ignoreBuildErrors: false // Re-enable after fixes
   },
-  
   eslint: {
-    // Disable ESLint during builds in production/Amplify
-    ignoreDuringBuilds: isProduction || isAmplify,
+    ignoreDuringBuilds: false // Re-enable after fixes
+  },
+  // App directory is enabled by default in Next.js 14
+  // experimental: {
+  //   appDir: true // Removed - deprecated in Next.js 14
+  // },
+  // Ensure consistent port
+  env: {
+    CUSTOM_PORT: '3001'
   },
   
   // Optimize images for production

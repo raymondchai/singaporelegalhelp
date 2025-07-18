@@ -100,18 +100,25 @@ export async function GET(request: NextRequest) {
     }
 
     // External API checks
-    const apiChecks = [
-      {
+    const apiChecks = []
+
+    // Add Stripe check if configured
+    if (process.env.STRIPE_SECRET_KEY) {
+      apiChecks.push({
         name: 'stripe',
         url: 'https://api.stripe.com/v1/charges',
         headers: { 'Authorization': `Bearer ${process.env.STRIPE_SECRET_KEY}` }
-      },
-      {
+      })
+    }
+
+    // Add aiXplain check if configured
+    if (process.env.AIXPLAIN_API_KEY) {
+      apiChecks.push({
         name: 'aixplain',
         url: 'https://api.aixplain.com/v1/health',
         headers: { 'Authorization': `Bearer ${process.env.AIXPLAIN_API_KEY}` }
-      }
-    ]
+      })
+    }
 
     for (const api of apiChecks) {
       const apiStart = Date.now()

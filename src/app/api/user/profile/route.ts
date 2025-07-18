@@ -104,7 +104,7 @@ export async function GET(request: NextRequest) {
       console.log(`⚠️ Profile API [${requestId}]: Subscriptions query failed:`, error.message)
     }
 
-    // Try to fetch teams (optional) with retry
+    // Try to fetch teams (optional) with retry - Skip if table doesn't exist
     try {
       console.log(`👥 Profile API [${requestId}]: Fetching teams`)
       const teams = await retryOperation(async () => {
@@ -121,6 +121,11 @@ export async function GET(request: NextRequest) {
           .eq('created_by', profile.id)
 
         if (teamError) {
+          // Check if table doesn't exist
+          if (teamError.message?.includes('relation "public.teams" does not exist')) {
+            console.log(`⚠️ Profile API [${requestId}]: Teams table doesn't exist yet, skipping`)
+            return []
+          }
           throw new Error(`Teams fetch error: ${teamError.message}`)
         }
 
@@ -131,6 +136,7 @@ export async function GET(request: NextRequest) {
       console.log(`✅ Profile API [${requestId}]: Found teams:`, teams.length)
     } catch (error: any) {
       console.log(`⚠️ Profile API [${requestId}]: Teams query failed:`, error.message)
+      enhancedData.teams = [] // Set empty array as fallback
     }
 
     // Try to fetch usage tracking (optional) with retry
@@ -284,9 +290,9 @@ export async function PUT(request: NextRequest) {
     updateData.updated_at = new Date().toISOString()
 
     const { data: updatedProfile, error: updateError } = await supabase
-      .from('profiles')
+      .from('user_profiles')
       .update(updateData)
-      .eq('id', user.id)
+      .eq('user_id', user.id)
       .select()
       .single()
 

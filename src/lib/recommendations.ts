@@ -69,12 +69,11 @@ export class RecommendationEngine {
     const recommendations: PersonalizedRecommendation[] = []
 
     for (const practiceArea of preferences.practiceAreasInterest) {
-      // Get top articles in this practice area
+      // Get top articles in this practice area - using existing columns only
       const { data: articles } = await supabase
         .from('legal_articles')
-        .select('id, title, summary, practice_area, updated_at, estimated_read_time')
-        .eq('practice_area', practiceArea)
-        .eq('status', 'published')
+        .select('id, title, summary, updated_at, reading_time_minutes')
+        .eq('is_published', true)
         .order('updated_at', { ascending: false })
         .limit(3)
 
@@ -85,21 +84,21 @@ export class RecommendationEngine {
             type: 'article',
             title: article.title,
             description: article.summary || '',
-            practiceArea: article.practice_area,
+            practiceArea: practiceArea, // Use the practice area from the loop
             relevanceScore: this.calculatePracticeAreaScore(practiceArea, activity),
             reason: `Based on your interest in ${practiceArea}`,
             contentId: article.id,
-            estimatedReadTime: article.estimated_read_time,
+            estimatedReadTime: article.reading_time_minutes,
             lastUpdated: article.updated_at
           })
         })
       }
 
-      // Get relevant Q&As
+      // Get relevant Q&As - using existing columns only
       const { data: qas } = await supabase
         .from('legal_qa')
-        .select('id, question, answer, practice_area, updated_at')
-        .eq('practice_area', practiceArea)
+        .select('id, question, answer, updated_at')
+        .eq('is_public', true)
         .eq('status', 'published')
         .order('updated_at', { ascending: false })
         .limit(2)
@@ -111,7 +110,7 @@ export class RecommendationEngine {
             type: 'qa',
             title: qa.question,
             description: qa.answer.substring(0, 150) + '...',
-            practiceArea: qa.practice_area,
+            practiceArea: practiceArea, // Use the practice area from the loop
             relevanceScore: this.calculatePracticeAreaScore(practiceArea, activity) * 0.8,
             reason: `Popular Q&A in ${practiceArea}`,
             contentId: qa.id,
@@ -142,9 +141,9 @@ export class RecommendationEngine {
       if (contentType === 'templates') {
         const { data: templates } = await supabase
           .from('legal_document_templates')
-          .select('id, template_name, description, category, updated_at')
+          .select('id, title, description, category, updated_at')
           .eq('status', 'active')
-          .order('usage_count', { ascending: false })
+          .order('updated_at', { ascending: false })
           .limit(3)
 
         if (templates) {
@@ -152,7 +151,7 @@ export class RecommendationEngine {
             recommendations.push({
               id: `template_${template.id}`,
               type: 'template',
-              title: template.template_name,
+              title: template.title,
               description: template.description || '',
               practiceArea: template.category,
               relevanceScore: contentTypeScores[contentType] || 0.5,
@@ -176,35 +175,28 @@ export class RecommendationEngine {
   ): Promise<PersonalizedRecommendation[]> {
     const recommendations: PersonalizedRecommendation[] = []
 
-    // Get trending articles based on recent views and bookmarks
+    // Get trending articles based on view count - using existing columns only
     const { data: trendingArticles } = await supabase
       .from('legal_articles')
-      .select(`
-        id, title, summary, practice_area, updated_at,
-        article_views!inner(count)
-      `)
-      .eq('status', 'published')
-      .order('article_views.count', { ascending: false })
+      .select('id, title, summary, updated_at, view_count')
+      .eq('is_published', true)
+      .order('view_count', { ascending: false })
       .limit(5)
 
     if (trendingArticles) {
       trendingArticles.forEach(article => {
-        const isRelevant = !preferences?.practiceAreasInterest?.length || 
-          preferences.practiceAreasInterest.includes(article.practice_area)
-
-        if (isRelevant) {
-          recommendations.push({
-            id: `trending_${article.id}`,
-            type: 'article',
-            title: article.title,
-            description: article.summary || '',
-            practiceArea: article.practice_area,
-            relevanceScore: 0.7,
-            reason: 'Trending content in Singapore legal community',
-            contentId: article.id,
-            lastUpdated: article.updated_at
-          })
-        }
+        // Since practice_area column doesn't exist, we'll include all trending articles
+        recommendations.push({
+          id: `trending_${article.id}`,
+          type: 'article',
+          title: article.title,
+          description: article.summary || '',
+          practiceArea: 'General', // Default practice area for trending content
+          relevanceScore: 0.7,
+          reason: 'Trending content in Singapore legal community',
+          contentId: article.id,
+          lastUpdated: article.updated_at
+        })
       })
     }
 
@@ -247,12 +239,13 @@ export class RecommendationEngine {
     const recommendations: PersonalizedRecommendation[] = []
     const practiceAreas = preferences?.practiceAreasInterest || []
 
+    // Note: practice_area column doesn't exist in legal_articles table
+    // Using category_id instead for future enhancement
     if (practiceAreas.length > 0) {
       const { data: recentUpdates } = await supabase
         .from('legal_articles')
-        .select('id, title, summary, practice_area, updated_at')
-        .in('practice_area', practiceAreas)
-        .eq('status', 'published')
+        .select('id, title, summary, category_id, updated_at')
+        .eq('is_published', true)
         .gte('updated_at', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString())
         .order('updated_at', { ascending: false })
         .limit(5)
@@ -264,9 +257,9 @@ export class RecommendationEngine {
             type: 'article',
             title: article.title,
             description: article.summary || '',
-            practiceArea: article.practice_area,
+            practiceArea: 'General', // Use category mapping in future
             relevanceScore: 0.6,
-            reason: 'Recently updated content in your practice areas',
+            reason: 'Recently updated content',
             contentId: article.id,
             lastUpdated: article.updated_at
           })
@@ -279,21 +272,48 @@ export class RecommendationEngine {
 
   // Helper methods
   private async getUserPreferences(): Promise<UserPreferences | null> {
-    const { data } = await supabase
-      .from('profiles')
-      .select('practice_areas_interest, notification_preferences, language_preference')
-      .eq('id', this.userId)
-      .single()
+    try {
+      const { data } = await supabase
+        .from('user_profiles')
+        .select('user_type, subscription_tier') // Only select fields that exist
+        .eq('user_id', this.userId)
+        .single()
 
-    if (!data) return null
+      if (!data) return null
 
-    return {
-      practiceAreasInterest: data.practice_areas_interest || [],
-      contentTypes: ['articles', 'qa', 'templates'],
-      notificationSettings: data.notification_preferences || {},
-      dashboardLayout: { widgets: [] },
-      language: data.language_preference || 'en',
-      timezone: 'Asia/Singapore'
+      // Return default preferences since the specific preference fields don't exist yet
+      return {
+        practiceAreasInterest: [], // Default empty array
+        contentTypes: ['articles', 'qa', 'templates'],
+        notificationSettings: {
+          email: false,
+          push: false,
+          sms: false,
+          deadlineReminders: false,
+          contentUpdates: false,
+          weeklyDigest: false
+        },
+        dashboardLayout: { widgets: [] },
+        language: 'en', // Default to English
+        timezone: 'Asia/Singapore'
+      }
+    } catch (error) {
+      console.warn('Failed to fetch user preferences, using defaults:', error)
+      return {
+        practiceAreasInterest: [],
+        contentTypes: ['articles', 'qa', 'templates'],
+        notificationSettings: {
+          email: false,
+          push: false,
+          sms: false,
+          deadlineReminders: false,
+          contentUpdates: false,
+          weeklyDigest: false
+        },
+        dashboardLayout: { widgets: [] },
+        language: 'en',
+        timezone: 'Asia/Singapore'
+      }
     }
   }
 
@@ -318,9 +338,9 @@ export class RecommendationEngine {
   }
 
   private calculatePracticeAreaScore(practiceArea: string, activity: any[]): number {
-    const practiceAreaActivity = activity.filter(a => a.practice_area === practiceArea)
+    // Note: practice_area doesn't exist in current schema, using general scoring
     const baseScore = 0.5
-    const activityBonus = Math.min(practiceAreaActivity.length * 0.1, 0.4)
+    const activityBonus = Math.min(activity.length * 0.05, 0.3)
     return baseScore + activityBonus
   }
 

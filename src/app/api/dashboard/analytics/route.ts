@@ -1,11 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { getSupabaseAdmin } from '@/lib/supabase'
 import { createAnalyticsService } from '@/lib/enhanced-analytics'
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-)
 
 export async function GET(request: NextRequest) {
   try {
@@ -15,6 +10,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'No authorization header' }, { status: 401 })
     }
 
+    const supabase = getSupabaseAdmin()
     const token = authHeader.replace('Bearer ', '')
     const { data: { user }, error: authError } = await supabase.auth.getUser(token)
 
@@ -67,6 +63,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No authorization header' }, { status: 401 })
     }
 
+    const supabase = getSupabaseAdmin()
     const token = authHeader.replace('Bearer ', '')
     const { data: { user }, error: authError } = await supabase.auth.getUser(token)
 
@@ -105,6 +102,7 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: 'No authorization header' }, { status: 401 })
     }
 
+    const supabase = getSupabaseAdmin()
     const token = authHeader.replace('Bearer ', '')
     const { data: { user }, error: authError } = await supabase.auth.getUser(token)
 
@@ -152,6 +150,7 @@ export async function PUT(request: NextRequest) {
 
 // Helper functions for specific analytics queries
 async function getPracticeAreaTrends(userId: string, params: any) {
+  const supabase = getSupabaseAdmin()
   const { timeRange = '30d' } = params
   const endDate = new Date()
   const startDate = new Date()
@@ -181,6 +180,7 @@ async function getPracticeAreaTrends(userId: string, params: any) {
 }
 
 async function getContentPerformance(userId: string, params: any) {
+  const supabase = getSupabaseAdmin()
   const { contentType = 'all', limit = 10 } = params
 
   let query = supabase
@@ -201,6 +201,7 @@ async function getContentPerformance(userId: string, params: any) {
 }
 
 async function getSearchAnalytics(userId: string, params: any) {
+  const supabase = getSupabaseAdmin()
   const { timeRange = '30d' } = params
   const endDate = new Date()
   const startDate = new Date()
@@ -229,6 +230,7 @@ async function getSearchAnalytics(userId: string, params: any) {
 }
 
 async function getTimeAnalysis(userId: string, params: any) {
+  const supabase = getSupabaseAdmin()
   const { groupBy = 'hour' } = params // 'hour', 'day', 'week'
   
   const { data } = await supabase

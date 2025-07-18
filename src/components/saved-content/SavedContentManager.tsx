@@ -126,7 +126,7 @@ export default function SavedContentManager({ userId }: SavedContentManagerProps
       const params = new URLSearchParams()
       
       if (searchQuery) params.append('q', searchQuery)
-      if (selectedCollection) params.append('collection_id', selectedCollection)
+      if (selectedCollection && selectedCollection !== 'all-collections') params.append('collection_id', selectedCollection)
       if (selectedTags.length > 0) params.append('tags', selectedTags.join(','))
       
       // Apply tab filters
@@ -328,12 +328,12 @@ export default function SavedContentManager({ userId }: SavedContentManagerProps
                 <SelectValue placeholder="All Collections" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">All Collections</SelectItem>
+                <SelectItem value="all-collections">All Collections</SelectItem>
                 {collections.map(collection => (
                   <SelectItem key={collection.id} value={collection.id}>
                     <div className="flex items-center gap-2">
-                      <div 
-                        className="w-3 h-3 rounded-full" 
+                      <div
+                        className="w-3 h-3 rounded-full"
                         style={{ backgroundColor: collection.color }}
                       ></div>
                       {collection.name}
@@ -378,12 +378,12 @@ export default function SavedContentManager({ userId }: SavedContentManagerProps
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                 <div>
                   <label className="text-sm font-medium">Content Type</label>
-                  <Select>
+                  <Select value={filters.contentType} onValueChange={(value) => setFilters(prev => ({ ...prev, contentType: value }))}>
                     <SelectTrigger>
                       <SelectValue placeholder="All Types" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">All Types</SelectItem>
+                      <SelectItem value="all-types">All Types</SelectItem>
                       <SelectItem value="article">Articles</SelectItem>
                       <SelectItem value="qa">Q&A</SelectItem>
                       <SelectItem value="document">Documents</SelectItem>
@@ -395,12 +395,12 @@ export default function SavedContentManager({ userId }: SavedContentManagerProps
 
                 <div>
                   <label className="text-sm font-medium">Date Range</label>
-                  <Select>
+                  <Select value={filters.dateRange} onValueChange={(value) => setFilters(prev => ({ ...prev, dateRange: value }))}>
                     <SelectTrigger>
                       <SelectValue placeholder="Any Time" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Any Time</SelectItem>
+                      <SelectItem value="any-time">Any Time</SelectItem>
                       <SelectItem value="today">Today</SelectItem>
                       <SelectItem value="week">This Week</SelectItem>
                       <SelectItem value="month">This Month</SelectItem>
@@ -411,12 +411,12 @@ export default function SavedContentManager({ userId }: SavedContentManagerProps
 
                 <div>
                   <label className="text-sm font-medium">Priority</label>
-                  <Select>
+                  <Select value={filters.priority} onValueChange={(value) => setFilters(prev => ({ ...prev, priority: value }))}>
                     <SelectTrigger>
                       <SelectValue placeholder="Any Priority" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Any Priority</SelectItem>
+                      <SelectItem value="any-priority">Any Priority</SelectItem>
                       <SelectItem value="2">Urgent</SelectItem>
                       <SelectItem value="1">Important</SelectItem>
                       <SelectItem value="0">Normal</SelectItem>
@@ -426,12 +426,12 @@ export default function SavedContentManager({ userId }: SavedContentManagerProps
 
                 <div>
                   <label className="text-sm font-medium">Has Annotations</label>
-                  <Select>
+                  <Select value={filters.hasAnnotations} onValueChange={(value) => setFilters(prev => ({ ...prev, hasAnnotations: value }))}>
                     <SelectTrigger>
                       <SelectValue placeholder="Any" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Any</SelectItem>
+                      <SelectItem value="any">Any</SelectItem>
                       <SelectItem value="true">With Annotations</SelectItem>
                       <SelectItem value="false">Without Annotations</SelectItem>
                     </SelectContent>
