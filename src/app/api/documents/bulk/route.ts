@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 import { z } from 'zod'
 
+export const dynamic = 'force-dynamic';
+
 const bulkActionSchema = z.object({
   action: z.enum(['favorite', 'unfavorite', 'share', 'move', 'tag', 'delete', 'download']),
   document_ids: z.array(z.string()).min(1, 'At least one document ID is required'),

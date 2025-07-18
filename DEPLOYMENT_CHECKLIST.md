@@ -259,9 +259,11 @@ curl -X POST https://singaporelegalhelp.com.sg/api/admin/create-users \
 ```
 
 ### 4. Initial Data Seeding
-- [ ] **Legal categories** imported (10 practice areas)
-- [ ] **Legal articles** imported (8-12 per area)
-- [ ] **Q&A content** imported (15-25 per area)
+- [ ] **Legal categories** imported (25+ practice areas)
+- [ ] **Core areas** content imported (10 areas with full content)
+- [ ] **Coming soon areas** configured (15 specialized areas)
+- [ ] **Legal articles** imported (8-12 per core area)
+- [ ] **Q&A content** imported (15-25 per core area)
 - [ ] **Sample law firms** added
 - [ ] **Document templates** uploaded
 
@@ -285,7 +287,8 @@ curl -X POST https://singaporelegalhelp.com.sg/api/admin/import-debt-bankruptcy
 ### Functionality Tests
 - [ ] **User registration** works
 - [ ] **Admin login** successful (both admin emails)
-- [ ] **Legal content** displays correctly (10 practice areas)
+- [ ] **Legal content** displays correctly (10 core areas + 15 coming soon)
+- [ ] **Coming soon areas** display properly with launch dates
 - [ ] **Content search** functions properly
 - [ ] **AI queries** respond correctly
 - [ ] **Rate limiting** enforces limits

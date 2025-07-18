@@ -14,9 +14,9 @@ The PRD has been updated to include the comprehensive legal content management s
 - **Expandable Architecture** for adding new legal areas
 
 ### 2. Complete Practice Areas List
-**All 10 legal areas now documented:**
+**Core Areas (10 - Implemented):**
 1. Family Law - Divorce, custody, matrimonial matters
-2. Employment Law - Workplace rights, contracts, disputes  
+2. Employment Law - Workplace rights, contracts, disputes
 3. Property Law - Real estate, leases, property transactions
 4. Criminal Law - Criminal procedures, defense, penalties
 5. Contract Law - Business contracts and agreements
@@ -26,10 +26,27 @@ The PRD has been updated to include the comprehensive legal content management s
 9. Corporate Law - Business formation, compliance
 10. Debt & Bankruptcy - Debt recovery, insolvency
 
+**Specialized Areas (15 - Coming Soon):**
+11. Civil Litigation / Dispute Resolution - Court proceedings, mediation, arbitration
+12. Banking & Finance - Financial regulations, banking law, securities
+13. Wills, Probate & Trusts - Estate planning, inheritance, trust administration
+14. Tax Law - Income tax, GST, corporate taxation
+15. Technology, Media & Telecommunications (TMT) - IT law, media regulations, telecom
+16. Data Protection / Privacy Law - PDPA compliance, data governance
+17. Construction Law - Building contracts, construction disputes
+18. Admiralty & Shipping - Maritime law, shipping regulations
+19. Environmental Law - Environmental compliance, sustainability
+20. Public International Law - International treaties, cross-border issues
+21. Constitutional & Administrative Law - Government law, public administration
+22. Insolvency / Bankruptcy Law - Corporate insolvency, restructuring
+23. Islamic/Muslim Law (Syariah) - Islamic legal principles, family matters
+24. Medical Law - Healthcare regulations, medical negligence
+25. Public Sector Law - Government contracts, public policy
+
 ### 3. Database Schema Enhancement
 **Added detailed legal content tables:**
 ```sql
--- Legal Categories (10 Practice Areas)
+-- Legal Categories (25+ Practice Areas)
 CREATE TABLE public.legal_categories (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -39,6 +56,8 @@ CREATE TABLE public.legal_categories (
     color VARCHAR(20),
     sort_order INTEGER,
     is_active BOOLEAN DEFAULT true,
+    is_coming_soon BOOLEAN DEFAULT false,
+    launch_date DATE,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -178,27 +197,32 @@ The updated PRD now provides:
 ## 📊 Content Scale
 
 **Total Content Capacity:**
-- **10 Practice Areas** fully configured
-- **80-120 Articles** (8-12 per area)
-- **150-250 Q&As** (15-25 per area)
+- **25+ Practice Areas** configured (10 core + 15 specialized)
+- **80-120 Articles** (8-12 per core area, expandable to specialized areas)
+- **150-250 Q&As** (15-25 per core area, expandable to specialized areas)
+- **Coming Soon functionality** for future area launches
 - **Unlimited expansion** capability through configuration
 
 ## 🎯 Next Steps
 
 The PRD is now complete and includes all original platform features plus your requested enhancements. Any AI coding agent can follow these specifications to rebuild the Singapore Legal Help platform with:
 
-1. **Complete legal content system** (10 practice areas)
-2. **Bulk content management** capabilities
-3. **Law firm directory** with search functionality
-4. **Enhanced subscription system** with exact pricing
-5. **AI-powered document builder** with LLM interaction
-6. **Comprehensive admin dashboard**
-7. **All security and compliance** requirements
+1. **Complete legal content system** (25+ practice areas)
+2. **Core areas implementation** (10 areas with full content)
+3. **Coming soon functionality** (15 specialized areas)
+4. **Bulk content management** capabilities
+5. **Law firm directory** with search functionality
+6. **Enhanced subscription system** with exact pricing
+7. **AI-powered document builder** with LLM interaction
+8. **Comprehensive admin dashboard**
+9. **Expandable architecture** for unlimited growth
+10. **All security and compliance** requirements
 
 The platform is ready for implementation with no ambiguity in the specifications.
 
 ---
 
-**Updated:** 2025-01-17  
-**Status:** Complete with Legal Content System  
+**Updated:** 2025-01-17
+**Status:** Complete with 25+ Practice Areas System
 **Ready for:** Full Implementation
+**Total Practice Areas:** 25+ (10 core implemented + 15 specialized coming soon)

@@ -5,6 +5,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createSupabaseAdmin } from '@/lib/supabase'
 import { createClient } from '@supabase/supabase-js'
 
+export const dynamic = 'force-dynamic';
+
 // Get user conversations
 export async function GET(request: NextRequest) {
   try {

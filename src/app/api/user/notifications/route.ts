@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { supabase } from '@/lib/supabase'
 import { z } from 'zod'
 
+export const dynamic = 'force-dynamic';
+
 const notificationPreferencesSchema = z.object({
   email: z.boolean(),
   sms: z.boolean(),

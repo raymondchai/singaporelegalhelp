@@ -3,6 +3,9 @@ import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 import { Database } from '@/types/database'
 
+// Force dynamic rendering to avoid build-time errors
+export const dynamic = 'force-dynamic'
+
 export async function GET(request: NextRequest) {
   console.log('🔐 Admin Roles API: Starting request')
   

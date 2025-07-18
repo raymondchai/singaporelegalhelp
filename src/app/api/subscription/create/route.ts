@@ -8,6 +8,8 @@ import { stripeSubscriptionService } from '@/lib/stripe';
 import { getSupabaseAdmin } from '@/lib/supabase';
 import { SUBSCRIPTION_TIERS, SubscriptionTier, BillingCycle } from '@/lib/subscription-config';
 
+export const dynamic = 'force-dynamic';
+
 // Helper function to get subscription price
 function getSubscriptionPrice(tier: string): number {
   const tierConfig = SUBSCRIPTION_TIERS[tier as SubscriptionTier];

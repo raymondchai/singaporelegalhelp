@@ -3,6 +3,8 @@ import { stripe } from '@/lib/stripe'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import Stripe from 'stripe'
 
+export const dynamic = 'force-dynamic';
+
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!
 
 export async function POST(request: NextRequest) {

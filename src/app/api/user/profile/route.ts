@@ -3,6 +3,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getSupabaseAdmin } from '@/lib/supabase'
 import { retryOperation } from '@/lib/error-handling'
 
+export const dynamic = 'force-dynamic';
+
 // Enhanced Profile API with retry logic and connection pooling
 export async function GET(request: NextRequest) {
   const requestId = Math.random().toString(36).substring(7)

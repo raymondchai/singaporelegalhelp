@@ -3,6 +3,8 @@ import { withApiMiddleware, ApiContext, validateSubscriptionTier } from '@/lib/a
 import { supabase } from '@/lib/supabase'
 import { createClient } from '@supabase/supabase-js'
 
+export const dynamic = 'force-dynamic';
+
 // Create admin client for analytics queries
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,

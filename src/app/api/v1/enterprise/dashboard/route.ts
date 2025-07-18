@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { withApiMiddleware, ApiContext, validateSubscriptionTier } from '@/lib/api-middleware'
 import { createClient } from '@supabase/supabase-js'
 
+export const dynamic = 'force-dynamic';
+
 // Create admin client for enterprise queries
 const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,

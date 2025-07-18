@@ -75,8 +75,8 @@ This PRD outlines the complete rebuild of the Singapore Legal Help platform with
 
 ## � Legal Content System (Core Feature)
 
-### 10 Practice Areas with Complete Content Management
-The platform includes a comprehensive legal content system covering 10 major practice areas:
+### Core Practice Areas (10 - Implemented)
+The platform includes a comprehensive legal content system covering 10 core practice areas:
 
 1. **Family Law** - Divorce, custody, matrimonial matters
 2. **Employment Law** - Workplace rights, contracts, disputes
@@ -88,6 +88,25 @@ The platform includes a comprehensive legal content system covering 10 major pra
 8. **Personal Injury** - Accident claims, compensation
 9. **Corporate Law** - Business formation, compliance
 10. **Debt & Bankruptcy** - Debt recovery, insolvency
+
+### Specialized Practice Areas (15 - Coming Soon)
+The platform architecture supports easy expansion to include specialized areas:
+
+11. **Civil Litigation / Dispute Resolution** - Court proceedings, mediation, arbitration
+12. **Banking & Finance** - Financial regulations, banking law, securities
+13. **Wills, Probate & Trusts** - Estate planning, inheritance, trust administration
+14. **Tax Law** - Income tax, GST, corporate taxation
+15. **Technology, Media & Telecommunications (TMT)** - IT law, media regulations, telecom
+16. **Data Protection / Privacy Law** - PDPA compliance, data governance
+17. **Construction Law** - Building contracts, construction disputes
+18. **Admiralty & Shipping** - Maritime law, shipping regulations
+19. **Environmental Law** - Environmental compliance, sustainability
+20. **Public International Law** - International treaties, cross-border issues
+21. **Constitutional & Administrative Law** - Government law, public administration
+22. **Insolvency / Bankruptcy Law** - Corporate insolvency, restructuring
+23. **Islamic/Muslim Law (Syariah)** - Islamic legal principles, family matters
+24. **Medical Law** - Healthcare regulations, medical negligence
+25. **Public Sector Law** - Government contracts, public policy
 
 ### Legal Content Structure
 Each practice area contains:
@@ -110,18 +129,20 @@ Each practice area contains:
 - **View count tracking**
 
 ### Expandable Architecture
-- **Easy addition** of new legal areas through configuration
+- **25+ practice areas** supported through configuration system
+- **Easy addition** of new legal areas through admin interface
 - **Standardized content structure** across all areas
 - **Universal admin interface** that adapts to each legal area
 - **Import API endpoints** for each practice area
-- **Consistent database schema** for scalability
+- **Consistent database schema** for unlimited scalability
+- **Coming Soon** functionality for future practice areas
 
 ## �📊 Database Schema Requirements
 
 ### Core Tables (Cleaned & Optimized)
 1. **profiles** - User authentication and basic info
 2. **admin_roles** - Admin access control
-3. **legal_categories** - Practice area organization (10 areas)
+3. **legal_categories** - Practice area organization (25+ areas)
 4. **legal_articles** - Legal content articles (comprehensive)
 5. **legal_qa** - Q&A knowledge base (extensive)
 6. **law_firms** - Law firm directory (NEW)
@@ -135,7 +156,7 @@ Each practice area contains:
 
 ### Legal Content Database Schema
 ```sql
--- Legal Categories (10 Practice Areas)
+-- Legal Categories (25+ Practice Areas)
 CREATE TABLE public.legal_categories (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -145,6 +166,8 @@ CREATE TABLE public.legal_categories (
     color VARCHAR(20),
     sort_order INTEGER,
     is_active BOOLEAN DEFAULT true,
+    is_coming_soon BOOLEAN DEFAULT false,
+    launch_date DATE,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -268,7 +291,7 @@ interface LegalQA {
 ```
 
 ### Admin Content Management Features
-- **Universal admin interface** for all 10 practice areas
+- **Universal admin interface** for all 25+ practice areas
 - **Bulk import functionality** via API endpoints
 - **Individual content creation** and editing
 - **Content approval workflows**
@@ -276,9 +299,11 @@ interface LegalQA {
 - **Content analytics** and performance tracking
 - **Search and filtering** capabilities
 - **Content versioning** and history
+- **Coming Soon** area management and launch scheduling
 
 ### Practice Area Specialization
-Each legal area has specialized fields:
+
+#### Core Areas (Implemented)
 - **Family Law:** Family law area, DMA provisions, parenting guidance
 - **Employment Law:** Employment act sections, workplace policies
 - **Property Law:** Property type, HDB regulations, URA compliance
@@ -290,9 +315,28 @@ Each legal area has specialized fields:
 - **Corporate Law:** Business structure, regulatory compliance
 - **Debt & Bankruptcy:** Debt category, bankruptcy stage, court procedures
 
+#### Specialized Areas (Coming Soon)
+- **Civil Litigation:** Case type, court level, dispute resolution method
+- **Banking & Finance:** Financial product type, regulatory framework, compliance area
+- **Wills & Probate:** Estate type, probate stage, trust structure
+- **Tax Law:** Tax type, compliance area, jurisdiction level
+- **TMT Law:** Technology sector, media type, telecom regulations
+- **Data Protection:** PDPA compliance area, data type, breach category
+- **Construction Law:** Project type, contract stage, dispute category
+- **Admiralty & Shipping:** Vessel type, maritime zone, shipping regulations
+- **Environmental Law:** Environmental area, compliance type, sustainability focus
+- **Public International Law:** Treaty type, jurisdiction, international body
+- **Constitutional Law:** Government level, administrative area, constitutional provision
+- **Insolvency Law:** Insolvency type, restructuring stage, creditor category
+- **Islamic Law:** Syariah area, family matter type, religious compliance
+- **Medical Law:** Healthcare area, medical specialty, regulatory compliance
+- **Public Sector Law:** Government sector, policy area, public contract type
+
 ### Content Import Endpoints
+
+#### Core Areas (Implemented)
 ```typescript
-// API Endpoints for each practice area
+// API Endpoints for core practice areas
 /api/admin/import-family-law
 /api/admin/import-employment-law
 /api/admin/import-property-law
@@ -303,6 +347,26 @@ Each legal area has specialized fields:
 /api/admin/import-personal-injury
 /api/admin/import-corporate-law
 /api/admin/import-debt-bankruptcy
+```
+
+#### Specialized Areas (Coming Soon)
+```typescript
+// API Endpoints for specialized practice areas (future implementation)
+/api/admin/import-civil-litigation
+/api/admin/import-banking-finance
+/api/admin/import-wills-probate-trusts
+/api/admin/import-tax-law
+/api/admin/import-tmt-law
+/api/admin/import-data-protection
+/api/admin/import-construction-law
+/api/admin/import-admiralty-shipping
+/api/admin/import-environmental-law
+/api/admin/import-public-international-law
+/api/admin/import-constitutional-administrative-law
+/api/admin/import-insolvency-bankruptcy-law
+/api/admin/import-islamic-muslim-law
+/api/admin/import-medical-law
+/api/admin/import-public-sector-law
 ```
 
 ## �📄 Document Builder System

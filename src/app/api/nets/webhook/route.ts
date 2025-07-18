@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { netsPaymentService } from '@/lib/nets'
 import { getSupabaseAdmin } from '@/lib/supabase'
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.text()

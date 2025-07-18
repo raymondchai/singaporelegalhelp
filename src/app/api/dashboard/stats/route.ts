@@ -3,6 +3,8 @@ import { cookies } from 'next/headers'
 import { NextRequest, NextResponse } from 'next/server'
 import { Database } from '@/types/database'
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   console.log('📊 Dashboard Stats API: Starting request')
   

@@ -17,7 +17,7 @@ Based on the codebase analysis, the following duplicate/redundant tables need at
 -- Core Tables (Final List)
 1. profiles                    -- User authentication & basic info
 2. admin_roles                 -- Admin access control (NEW)
-3. legal_categories           -- Practice areas (10 areas)
+3. legal_categories           -- Practice areas (25+ areas)
 4. legal_articles             -- Legal content (comprehensive)
 5. legal_qa                   -- Q&A system (extensive)
 6. law_firms                  -- Law firm directory (NEW)
@@ -33,7 +33,7 @@ Based on the codebase analysis, the following duplicate/redundant tables need at
 The platform includes a comprehensive legal content management system:
 
 ```sql
--- Legal Categories (10 Practice Areas)
+-- Legal Categories (25+ Practice Areas)
 CREATE TABLE public.legal_categories (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
@@ -43,22 +43,42 @@ CREATE TABLE public.legal_categories (
     color VARCHAR(20),
     sort_order INTEGER,
     is_active BOOLEAN DEFAULT true,
+    is_coming_soon BOOLEAN DEFAULT false,
+    launch_date DATE,
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- Insert 10 practice areas
-INSERT INTO public.legal_categories (id, name, slug, description, icon, color, sort_order) VALUES
-('8ec7d509-45be-4416-94bc-4e58dd6bc7cc', 'Family Law', 'family-law', 'Divorce, custody, matrimonial matters', 'heart', 'text-pink-600', 1),
-('9e1378f4-c4c9-4296-b8a4-508699f63a88', 'Employment Law', 'employment-law', 'Workplace rights, contracts, disputes', 'briefcase', 'text-blue-600', 2),
-('4e8ce92f-a63c-4719-9d73-2f28966c45be', 'Property Law', 'property-law', 'Real estate, leases, property transactions', 'home', 'text-green-600', 3),
-('0047f44c-0869-432e-9b25-a20dbabe53fb', 'Criminal Law', 'criminal-law', 'Criminal procedures, defense, penalties', 'shield', 'text-red-600', 4),
-('098b68ea-a042-4245-bd3b-5562c166edb6', 'Contract Law', 'contract-law', 'Business contracts and agreements', 'building', 'text-purple-600', 5),
-('64f9abe4-f1c2-4eb6-9d11-6f107ab9def1', 'Intellectual Property', 'intellectual-property', 'Trademarks, patents, copyright', 'lightbulb', 'text-yellow-600', 6),
-('57559a93-bb72-4833-8ad5-75e1dbc2e275', 'Immigration Law', 'immigration-law', 'Work permits, PR, citizenship', 'plane', 'text-indigo-600', 7),
-('f8a2c1d4-5e6b-4c7a-8d9e-0f1a2b3c4d5e', 'Personal Injury', 'personal-injury', 'Accident claims, compensation', 'user-x', 'text-orange-600', 8),
-('a1b2c3d4-e5f6-7890-abcd-ef1234567890', 'Corporate Law', 'corporate-law', 'Business formation, compliance', 'building-2', 'text-teal-600', 9),
-('b2c3d4e5-f6a7-8901-bcde-f23456789012', 'Debt & Bankruptcy', 'debt-bankruptcy', 'Debt recovery, insolvency', 'credit-card', 'text-gray-600', 10);
+-- Insert core practice areas (implemented)
+INSERT INTO public.legal_categories (id, name, slug, description, icon, color, sort_order, is_active, is_coming_soon) VALUES
+('8ec7d509-45be-4416-94bc-4e58dd6bc7cc', 'Family Law', 'family-law', 'Divorce, custody, matrimonial matters', 'heart', 'text-pink-600', 1, true, false),
+('9e1378f4-c4c9-4296-b8a4-508699f63a88', 'Employment Law', 'employment-law', 'Workplace rights, contracts, disputes', 'briefcase', 'text-blue-600', 2, true, false),
+('4e8ce92f-a63c-4719-9d73-2f28966c45be', 'Property Law', 'property-law', 'Real estate, leases, property transactions', 'home', 'text-green-600', 3, true, false),
+('0047f44c-0869-432e-9b25-a20dbabe53fb', 'Criminal Law', 'criminal-law', 'Criminal procedures, defense, penalties', 'shield', 'text-red-600', 4, true, false),
+('098b68ea-a042-4245-bd3b-5562c166edb6', 'Contract Law', 'contract-law', 'Business contracts and agreements', 'building', 'text-purple-600', 5, true, false),
+('64f9abe4-f1c2-4eb6-9d11-6f107ab9def1', 'Intellectual Property', 'intellectual-property', 'Trademarks, patents, copyright', 'lightbulb', 'text-yellow-600', 6, true, false),
+('57559a93-bb72-4833-8ad5-75e1dbc2e275', 'Immigration Law', 'immigration-law', 'Work permits, PR, citizenship', 'plane', 'text-indigo-600', 7, true, false),
+('f8a2c1d4-5e6b-4c7a-8d9e-0f1a2b3c4d5e', 'Personal Injury', 'personal-injury', 'Accident claims, compensation', 'user-x', 'text-orange-600', 8, true, false),
+('a1b2c3d4-e5f6-7890-abcd-ef1234567890', 'Corporate Law', 'corporate-law', 'Business formation, compliance', 'building-2', 'text-teal-600', 9, true, false),
+('b2c3d4e5-f6a7-8901-bcde-f23456789012', 'Debt & Bankruptcy', 'debt-bankruptcy', 'Debt recovery, insolvency', 'credit-card', 'text-gray-600', 10, true, false);
+
+-- Insert specialized practice areas (coming soon)
+INSERT INTO public.legal_categories (id, name, slug, description, icon, color, sort_order, is_active, is_coming_soon) VALUES
+('c3d4e5f6-a7b8-9012-cdef-345678901234', 'Civil Litigation / Dispute Resolution', 'civil-litigation', 'Court proceedings, mediation, arbitration', 'gavel', 'text-slate-600', 11, true, true),
+('d4e5f6a7-b8c9-0123-def4-456789012345', 'Banking & Finance', 'banking-finance', 'Financial regulations, banking law, securities', 'banknote', 'text-emerald-600', 12, true, true),
+('e5f6a7b8-c9d0-1234-ef56-567890123456', 'Wills, Probate & Trusts', 'wills-probate-trusts', 'Estate planning, inheritance, trust administration', 'scroll', 'text-amber-600', 13, true, true),
+('f6a7b8c9-d0e1-2345-f678-678901234567', 'Tax Law', 'tax-law', 'Income tax, GST, corporate taxation', 'calculator', 'text-rose-600', 14, true, true),
+('a7b8c9d0-e1f2-3456-789a-789012345678', 'Technology, Media & Telecommunications', 'tmt-law', 'IT law, media regulations, telecom', 'smartphone', 'text-cyan-600', 15, true, true),
+('b8c9d0e1-f2a3-4567-89ab-890123456789', 'Data Protection / Privacy Law', 'data-protection', 'PDPA compliance, data governance', 'shield-check', 'text-violet-600', 16, true, true),
+('c9d0e1f2-a3b4-5678-9abc-901234567890', 'Construction Law', 'construction-law', 'Building contracts, construction disputes', 'hard-hat', 'text-orange-600', 17, true, true),
+('d0e1f2a3-b4c5-6789-abcd-012345678901', 'Admiralty & Shipping', 'admiralty-shipping', 'Maritime law, shipping regulations', 'anchor', 'text-blue-700', 18, true, true),
+('e1f2a3b4-c5d6-789a-bcde-123456789012', 'Environmental Law', 'environmental-law', 'Environmental compliance, sustainability', 'leaf', 'text-green-700', 19, true, true),
+('f2a3b4c5-d6e7-89ab-cdef-234567890123', 'Public International Law', 'public-international-law', 'International treaties, cross-border issues', 'globe', 'text-indigo-700', 20, true, true),
+('a3b4c5d6-e7f8-9abc-def0-345678901234', 'Constitutional & Administrative Law', 'constitutional-administrative-law', 'Government law, public administration', 'landmark', 'text-red-700', 21, true, true),
+('b4c5d6e7-f8a9-abcd-ef01-456789012345', 'Insolvency / Bankruptcy Law', 'insolvency-bankruptcy-law', 'Corporate insolvency, restructuring', 'trending-down', 'text-gray-700', 22, true, true),
+('c5d6e7f8-a9b0-bcde-f012-567890123456', 'Islamic/Muslim Law (Syariah)', 'islamic-muslim-law', 'Islamic legal principles, family matters', 'moon', 'text-purple-700', 23, true, true),
+('d6e7f8a9-b0c1-cdef-0123-678901234567', 'Medical Law', 'medical-law', 'Healthcare regulations, medical negligence', 'stethoscope', 'text-pink-700', 24, true, true),
+('e7f8a9b0-c1d2-def0-1234-789012345678', 'Public Sector Law', 'public-sector-law', 'Government contracts, public policy', 'building-columns', 'text-slate-700', 25, true, true);
 
 -- Legal Articles (Comprehensive Content)
 CREATE TABLE public.legal_articles (
